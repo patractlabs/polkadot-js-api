@@ -1349,6 +1349,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.10.4, @babel/runtime@npm:^7.9.2":
+  version: 7.11.2
+  resolution: "@babel/runtime@npm:7.11.2"
+  dependencies:
+    regenerator-runtime: ^0.13.4
+  checksum: 3/2f127ad60a0f0568faa0044e5b48329d8166c7fd3a0a3ce774070010a1c441ebf5570f526dd6bb26e214fb1a01bb987ab6a4c3f60a00f04d02448939f4c61e1e
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.10.1, @babel/template@npm:^7.3.3":
   version: 7.10.1
   resolution: "@babel/template@npm:7.10.1"
@@ -2668,13 +2677,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@polkadot/api-contract@workspace:packages/api-contract"
   dependencies:
-    "@babel/runtime": ^7.10.2
+    "@babel/runtime": ^7.9.2
     "@polkadot/api": 1.19.1
     "@polkadot/rpc-core": 1.19.1
     "@polkadot/types": 1.19.1
-    "@polkadot/util": ^2.14.1
-    bn.js: ^5.1.2
-    rxjs: ^6.5.5
+    "@polkadot/util": ^2.7.1
+    bn.js: ^5.1.1
+    rxjs: ^6.5.4
   languageName: unknown
   linkType: soft
 
@@ -2960,6 +2969,20 @@ __metadata:
     chalk: ^4.1.0
     ip-regex: ^4.1.0
   checksum: 3/caa2649912abcccbe5190468c15f20ad29b836ac20366cecba66cdf02cf7a1e27e9dd6eb05b79977363db63834e99b971f5a604df5f7776181d1336d1aa8cd68
+  languageName: node
+  linkType: hard
+
+"@polkadot/util@npm:^2.7.1":
+  version: 2.18.1
+  resolution: "@polkadot/util@npm:2.18.1"
+  dependencies:
+    "@babel/runtime": ^7.10.4
+    "@types/bn.js": ^4.11.6
+    bn.js: ^5.1.2
+    camelcase: ^5.3.1
+    chalk: ^4.1.0
+    ip-regex: ^4.1.0
+  checksum: 3/df6cb63e7d5cff1f0075e7807b76c6ea26c1a52f887dc20558d8717cde81713fa391cfd17dd82792f4c6271be30f143d3a11c816b7c00eaeea1d411fe5208e71
   languageName: node
   linkType: hard
 
@@ -16214,6 +16237,15 @@ __metadata:
   dependencies:
     tslib: ^1.9.0
   checksum: 3/a3882e0374af8aa32459ea9219fdcf24cb5a943cdf35f50da4ded48435ec474647c315b85c3e7b703927a55689e54037538cbd24789548d07b74e4865c4adb78
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:^6.5.4":
+  version: 6.6.2
+  resolution: "rxjs@npm:6.6.2"
+  dependencies:
+    tslib: ^1.9.0
+  checksum: 3/9b16cd36093b87ce454726f14783e204b80431e6657d36191877e4d9d4b0713c73e5ee8b45be336b081d47b10cd016b3812ea3bd4b27bf87942b1410aa18ee04
   languageName: node
   linkType: hard
 
