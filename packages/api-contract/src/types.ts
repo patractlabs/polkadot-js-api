@@ -23,7 +23,6 @@ export interface ContractBase<ApiType extends ApiTypes> {
 
 export interface ContractABITypePre {
   ty: TypeIndex;
-  // eslint-disable-next-line camelcase
   display_name: StringIndex[];
 }
 
@@ -57,7 +56,6 @@ export interface ContractABIMessageCommon {
 
 export interface ContractABIMessagePre extends ContractABIMessageCommon, ContractABIMessageBasePre {
   name: StringIndex;
-  // eslint-disable-next-line camelcase
   return_type: ContractABITypePre | null;
 }
 
@@ -189,7 +187,6 @@ export interface InterfaceAbi {
 }
 
 export interface InterfaceContractCalls {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   [index: string]: Function;
 }
 
