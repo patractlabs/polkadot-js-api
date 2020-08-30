@@ -6,34 +6,13 @@ import { MtType } from '@polkadot/types/interfaces';
 
 import { TypeRegistry, createType } from '@polkadot/types';
 
-import incrementer from '../test/abi/v2-296-incrementer.json';
-import { getInkString, getInkStrings, getInkType, getInkTypes } from './inkRegistry';
+import erc20 from '../test/abi/v3-erc20.json';
+import { getInkType, getInkTypes } from './inkRegistry';
 
 const registry = new TypeRegistry();
 
 describe('inkRegistry', (): void => {
-  const project = createType(registry, 'InkProject', incrementer);
-
-  describe('getInkStrings', (): void => {
-    it('fails with invalid indexes', (): void => {
-      expect(
-        // this is a 0, indexes start at 1, so should fail
-        (): string => getInkString(project, createType(registry, 'MtLookupTextId'))
-      ).toThrow();
-    });
-
-    it('does single lookups via getInkString', (): void => {
-      expect(
-        getInkString(project, project.contract.messages[0].name)
-      ).toEqual('inc');
-    });
-
-    it('does multiple lookups via getInkStrings', (): void => {
-      expect(
-        getInkStrings(project, project.lookup.types[0].path)
-      ).toEqual(['incrementer', 'incrementer']);
-    });
-  });
+  const project = createType(registry, 'InkProject', erc20);
 
   describe('getInkTypes', (): void => {
     it('fails with invalid indexes', (): void => {
@@ -45,14 +24,14 @@ describe('inkRegistry', (): void => {
 
     it('does single lookups via getInkType', (): void => {
       expect(
-        JSON.stringify(getInkType(project, project.contract.messages[0].args[0].type.id))
-      ).toEqual('{"Primitive":"I32"}');
+        JSON.stringify(getInkType(project, project.spec.constructors[0].args[0].type.id))
+      ).toEqual('{"path":[],"params":[],"def":{"Primitive":"U128"}}');
     });
 
     it('does multiple lookups via getInkTypes', (): void => {
       expect(
-        JSON.stringify(getInkTypes(project, [project.contract.messages[1].returnType.unwrap().id]))
-      ).toEqual('[{"Primitive":"I32"}]');
+        JSON.stringify(getInkTypes(project, [project.spec.messages[1].returnType.unwrap().id]))
+      ).toEqual('[{"path":[],"params":[],"def":{"Primitive":"U128"}}]');
     });
   });
 });

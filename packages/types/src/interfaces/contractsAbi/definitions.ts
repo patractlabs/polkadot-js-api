@@ -3,89 +3,107 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 const layout = {
+  InkCryptoHasher: {
+    _enum: ['Blake2x256', 'Sha2x256', 'Keccak256']
+  },
+  InkHashingStrategy: {
+    hasher: 'InkCryptoHasher',
+    prefix: 'Vec<u8>',
+    postfix: 'Vec<u8>'
+  },
+  InkDiscriminant: {}, // todo usize
   InkLayoutKey: '[u8; 32]',
-  InkLayoutField: {
-    name: 'MtLookupTextId',
+  InkFieldLayout: {
+    name: 'Option<Text>',
     layout: 'InkStorageLayout'
   },
-  InkLayoutCell: {
+  InkCellLayout: {
     key: 'InkLayoutKey',
     ty: 'MtLookupTypeId'
   },
-  InkLayoutRange: {
+  InkHashLayout: {
+    offset: 'InkLayoutKey',
+    strategy: 'InkHashingStrategy',
+    layout: 'InkStorageLayout'
+  },
+  InkArrayLayout: {
     offset: 'InkLayoutKey',
     len: 'u32',
-    elemType: 'MtLookupTextId'
+    cellsPerElem: 'u64',
+    layout: 'InkStorageLayout'
   },
-  InkLayoutStruct: {
-    fields: 'Vec<InkLayoutField>'
+  InkStructLayout: {
+    fields: 'Vec<InkFieldLayout>'
+  },
+  InkEnumLayout: {
+    dispatchKey: 'InkLayoutKey',
+    variants: 'BTreeMap<InkDiscriminant,InkStructLayout>'
   },
   InkStorageLayout: {
     _enum: {
-      Cell: 'InkLayoutCell',
-      // todo: Hash, Array, Enum
-      Struct: 'InkLayoutStruct'
+      Cell: 'InkCellLayout',
+      Hash: 'InkHashLayout',
+      Array: 'InkArrayLayout',
+      Struct: 'InkStructLayout',
+      Enum: 'InkEnumLayout'
     }
   }
 };
 
 const spec = {
+  InkDisplayName: 'Vec<Text>',
+  InkReturnTypeSpec: 'Option<InkTypeSpec>',
   InkConstructorSpec: {
-    name: 'MtLookupTextId',
+    name: 'Text',
     selector: 'InkSelector',
     args: 'Vec<InkMessageParamSpec>',
     docs: 'Vec<Text>'
   },
   InkContractSpec: {
-    name: 'MtLookupTextId',
     constructors: 'Vec<InkConstructorSpec>',
     messages: 'Vec<InkMessageSpec>',
     events: 'Vec<InkEventSpec>',
     docs: 'Vec<Text>'
   },
   InkEventParamSpec: {
-    name: 'MtLookupTextId',
+    name: 'Text',
     indexed: 'bool',
     type: 'InkTypeSpec',
     docs: 'Vec<Text>'
   },
   InkEventSpec: {
-    name: 'MtLookupTextId',
+    name: 'Text',
     args: 'Vec<InkEventParamSpec>',
     docs: 'Vec<Text>'
   },
   InkMessageParamSpec: {
-    name: 'MtLookupTextId',
+    name: 'Text',
     type: 'InkTypeSpec'
   },
   InkMessageSpec: {
-    name: 'MtLookupTextId',
+    name: 'Text',
     selector: 'InkSelector',
     mutates: 'bool',
     args: 'Vec<InkMessageParamSpec>',
-    returnType: 'Option<InkTypeSpec>',
+    returnType: 'InkReturnTypeSpec',
     docs: 'Vec<Text>'
   },
   InkSelector: '[u8; 4]',
   InkTypeSpec: {
     id: 'MtLookupTypeId',
-    displayName: 'MtLookupTextId'
+    displayName: 'InkDisplayName'
   }
 };
 
 const registry = {
   MtLookupTypeId: 'u32',
-  MtLookupTextId: 'u32',
   MtField: {
-    name: 'Option<MtLookupTextId>',
+    name: 'Option<Text>',
     type: 'MtLookupTypeId'
   },
-  MtRegistry: {
-    strings: 'Vec<Text>',
-    types: 'Vec<MtType>'
-  },
+  MtRegistry: 'Vec<MtType>',
   MtType: {
-    path: 'Vec<MtLookupTextId>',
+    path: 'Vec<Text>',
     params: 'Vec<MtLookupTypeId>',
     def: 'MtTypeDef'
   },
@@ -93,7 +111,7 @@ const registry = {
     _enum: {
       Composite: 'MtTypeDefComposite',
       Variant: 'MtTypeDefVariant',
-      Slice: 'MtTypeDefSlice',
+      Sequence: 'MtTypeDefSequence',
       Array: 'MtTypeDefArray',
       Tuple: 'MtTypeDefTuple',
       Primitive: 'MtTypeDefPrimitive'
@@ -106,19 +124,19 @@ const registry = {
     variants: 'Vec<MtVariant>'
   },
   MtTypeDefArray: {
-    len: 'u16',
+    len: 'u32',
     type: 'MtLookupTypeId'
   },
   MtTypeDefPrimitive: {
     // this enum definition is mapped in api-contracts/inkTypes.ts
     _enum: ['Bool', 'Char', 'Str', 'U8', 'U16', 'U32', 'U64', 'U128', 'I8', 'I16', 'I32', 'I64', 'I128']
   },
-  MtTypeDefSlice: {
+  MtTypeDefSequence: {
     type: 'MtLookupTypeId'
   },
   MtTypeDefTuple: 'Vec<MtLookupTypeId>',
   MtVariant: {
-    name: 'MtLookupTextId',
+    name: 'Text',
     fields: 'Vec<MtField>',
     discriminant: 'Option<u64>'
   }
@@ -131,11 +149,11 @@ export default {
     ...spec,
     InkProject: {
       _alias: {
-        lookup: 'registry'
+        lookup: 'types'
       },
       lookup: 'MtRegistry',
       storage: 'InkStorageLayout',
-      contract: 'InkContractSpec'
+      spec: 'InkContractSpec'
     }
   }
 };

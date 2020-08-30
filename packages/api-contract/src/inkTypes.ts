@@ -2,12 +2,12 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
-import { InkProject, MtField, MtLookupTypeId, MtType, MtTypeDef, MtTypeDefArray, MtTypeDefVariant, MtTypeDefPrimitive, MtTypeDefSlice, MtTypeDefTuple } from '@polkadot/types/interfaces';
+import { InkProject, MtField, MtLookupTypeId, MtType, MtTypeDef, MtTypeDefArray, MtTypeDefVariant, MtTypeDefPrimitive, MtTypeDefSequence, MtTypeDefTuple } from '@polkadot/types/interfaces';
 import { InterfaceTypes } from '@polkadot/types/types';
 
 import { assert, isUndefined } from '@polkadot/util';
 
-import { getInkString, getInkStrings, getInkType } from './inkRegistry';
+import { getInkType } from './inkRegistry';
 import sanitize from '@polkadot/types/create/sanitize';
 
 // this maps through the the enum definition in types/interfaces/contractsAbi/defintions.ts
@@ -34,12 +34,12 @@ function getTypeArray (project: InkProject, idArray: MtTypeDefArray): string {
 
 // convert a typeid into the custom
 function resolveTypeFromPath (project: InkProject, type: MtType): string {
-  const nameSegments = getInkStrings(project, type.path);
+  const nameSegments = type.path.toArray();
   const params = type.params.length
     ? `<${type.params.map((type): string | null => resolveTypeFromId(project, type)).join(', ')}>`
     : '';
   const name = nameSegments.length
-    ? `${type.path.join('::')}::`
+    ? `${type.path.join('::')}`
     : '';
 
   return `${name}${params}`;
@@ -58,7 +58,7 @@ function buildTypeDefFields (project: InkProject, typeFields: MtField[]): string
     const fields = typeFields.map((field): string => {
       const type = resolveTypeFromId(project, field.type);
 
-      const name = getInkString(project, field.name.unwrap());
+      const name = field.name.unwrap().toString();
       return `"${name}": ${JSON.stringify(type)}`;
     });
 
@@ -88,9 +88,7 @@ function buildTypeDefVariant (project: InkProject, typeVariant: MtTypeDefVariant
 
   if (allUnitVariants) {
     // FIXME We are currently ignoring the discriminant
-    const variants = typeVariant.variants.map(({ name }): string =>
-      getInkString(project, name)
-    );
+    const variants = typeVariant.variants.map(({ name }): string => name.toString());
 
     return variants.length
       ? `{_enum:[${variants.join(', ')}]}`
@@ -100,7 +98,7 @@ function buildTypeDefVariant (project: InkProject, typeVariant: MtTypeDefVariant
   const variants = typeVariant.variants.map(({ name, fields, discriminant }): string => {
     assert(discriminant.isNone, "Only enums with all 'unit' variants (i.e. C-like enums) can have discriminants");
 
-    const variantName = getInkString(project, name);
+    const variantName = name.toString();
     const variantFields = buildTypeDefFields(project, fields);
 
     return `"${variantName}": ${variantFields}`;
@@ -121,7 +119,7 @@ function getTypePrimitive (_project: InkProject, idPrim: MtTypeDefPrimitive): ke
 }
 
 // convert a type definition into the underlying Vec
-function getTypeSlice (project: InkProject, idSlice: MtTypeDefSlice): string {
+function getTypeSlice (project: InkProject, idSlice: MtTypeDefSequence): string {
   const type = resolveTypeFromId(project, idSlice.type);
 
   return `Vec<${type}>`;
@@ -144,8 +142,8 @@ function resolveType (project: InkProject, type: MtType): string {
     return getTypeArray(project, type.def.asArray);
   } else if (type.def.isPrimitive) {
     return getTypePrimitive(project, type.def.asPrimitive);
-  } else if (type.def.isSlice) {
-    return getTypeSlice(project, type.def.asSlice);
+  } else if (type.def.isSequence) {
+    return getTypeSlice(project, type.def.asSequence);
   } else if (type.def.isTuple) {
     return getTypeTuple(project, type.def.asTuple);
   }
@@ -177,5 +175,5 @@ function convertTypes (project: InkProject, types: MtType[]): [number, string, s
 }
 
 export function getProjectTypes (project: InkProject): [number, string, string | null][] {
-  return convertTypes(project, project.lookup.types);
+  return convertTypes(project, project.lookup);
 }
