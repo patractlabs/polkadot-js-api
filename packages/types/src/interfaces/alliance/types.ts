@@ -16,10 +16,10 @@ export interface Url extends Bytes {}
 
 /** @name UserIdentity */
 export interface UserIdentity extends Enum {
-  readonly isWebsite: boolean;
-  readonly asWebsite: Bytes;
   readonly isAccountId: boolean;
   readonly asAccountId: AccountId;
+  readonly isWebsite: boolean;
+  readonly asWebsite: Bytes;
 }
 
 export type PHANTOM_ALLIANCE = 'alliance';

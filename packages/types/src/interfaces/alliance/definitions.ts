@@ -19,8 +19,8 @@ export default {
     Url: 'Vec<u8>',
     UserIdentity: {
       _enum: {
-        Website: 'Vec<u8>',
-        AccountId: 'AccountId'
+        AccountId: 'AccountId',
+        Website: 'Vec<u8>'
       }
     }
   }

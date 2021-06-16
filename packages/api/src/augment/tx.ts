@@ -34,7 +34,7 @@ declare module '@polkadot/api/types/submittable' {
       /**
        * Add websites or addresses into blacklist.
        **/
-      addBlacklist: AugmentedSubmittable<(infos: Vec<UserIdentity> | (UserIdentity | { Website: any } | { AccountId: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<UserIdentity>]>;
+      addBlacklist: AugmentedSubmittable<(infos: Vec<UserIdentity> | (UserIdentity | { AccountId: any } | { Website: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<UserIdentity>]>;
       /**
        * Announcement IPFS Hash about dispute between two allies and other issues.
        * Proposer should publish in polkassembly.io first and talked with others,
@@ -82,7 +82,7 @@ declare module '@polkadot/api/types/submittable' {
       /**
        * Remove websites or addresses form blacklist.
        **/
-      removeBlacklist: AugmentedSubmittable<(infos: Vec<UserIdentity> | (UserIdentity | { Website: any } | { AccountId: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<UserIdentity>]>;
+      removeBlacklist: AugmentedSubmittable<(infos: Vec<UserIdentity> | (UserIdentity | { AccountId: any } | { Website: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<UserIdentity>]>;
       /**
        * As a member, back to outsider and unlock deposit.
        **/
