@@ -13,7 +13,7 @@ import { catchError, map, switchMap } from '@polkadot/x-rxjs/operators';
 
 import { memo } from '../util';
 
-type Collective = 'council' | 'membership' | 'technicalCommittee';
+type Collective = 'council' | 'membership' | 'technicalCommittee' | 'allianceMotion';
 
 type Result = [(Hash | Uint8Array | string)[], (Option<Proposal> | null)[], Option<Votes>[]];
 

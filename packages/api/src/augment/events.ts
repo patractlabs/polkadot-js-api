@@ -24,9 +24,70 @@ import type { BountyIndex } from '@polkadot/types/interfaces/treasury';
 import type { ClassId, InstanceId } from '@polkadot/types/interfaces/uniques';
 import type { Timepoint } from '@polkadot/types/interfaces/utility';
 import type { ApiTypes } from '@polkadot/api/types';
+import { Cid, UserIdentity } from '@polkadot/types/interfaces';
 
 declare module '@polkadot/api/types/events' {
   export interface AugmentedEvents<ApiType> {
+    alliance: {
+      AllyElevated: AugmentedEvent<ApiType, [AccountId]>;
+      BlacklistAdded: AugmentedEvent<ApiType, [Vec<UserIdentity>]>;
+      BlacklistRemoved: AugmentedEvent<ApiType, [Vec<UserIdentity>]>;
+      CandidateAdded: AugmentedEvent<ApiType, [AccountId, Option<AccountId>, Option<BalanceOf>]>;
+      CandidateApproved: AugmentedEvent<ApiType, [AccountId]>;
+      CandidateRejected: AugmentedEvent<ApiType, [AccountId]>;
+      FoundersInitialized: AugmentedEvent<ApiType, [Vec<AccountId>]>;
+      MemberKicked: AugmentedEvent<ApiType, [AccountId]>;
+      MemberRetired: AugmentedEvent<ApiType, [AccountId]>;
+      NewAnnouncement: AugmentedEvent<ApiType, [Cid]>;
+      NewRule: AugmentedEvent<ApiType, [Cid]>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
+    };
+    allianceMotion: {
+      /**
+       * A motion was approved by the required threshold.
+       * \[proposal_hash\]
+       **/
+      Approved: AugmentedEvent<ApiType, [Hash]>;
+      /**
+       * A proposal was closed because its threshold was reached or after its duration was up.
+       * \[proposal_hash, yes, no\]
+       **/
+      Closed: AugmentedEvent<ApiType, [Hash, MemberCount, MemberCount]>;
+      /**
+       * A motion was not approved by the required threshold.
+       * \[proposal_hash\]
+       **/
+      Disapproved: AugmentedEvent<ApiType, [Hash]>;
+      /**
+       * A motion was executed; result will be `Ok` if it returned without error.
+       * \[proposal_hash, result\]
+       **/
+      Executed: AugmentedEvent<ApiType, [Hash, DispatchResult]>;
+      /**
+       * A single member did some action; result will be `Ok` if it returned without error.
+       * \[proposal_hash, result\]
+       **/
+      MemberExecuted: AugmentedEvent<ApiType, [Hash, DispatchResult]>;
+      /**
+       * A motion (given hash) has been proposed (by given account) with a threshold (given
+       * `MemberCount`).
+       * \[account, proposal_index, proposal_hash, threshold\]
+       **/
+      Proposed: AugmentedEvent<ApiType, [AccountId, ProposalIndex, Hash, MemberCount]>;
+      /**
+       * A motion (given hash) has been voted on by given account, leaving
+       * a tally (yes votes and no votes given respectively as `MemberCount`).
+       * \[account, proposal_hash, voted, yes, no\]
+       **/
+      Voted: AugmentedEvent<ApiType, [AccountId, Hash, bool, MemberCount, MemberCount]>;
+      /**
+       * Generic event
+       **/
+      [key: string]: AugmentedEvent<ApiType>;
+    };
     assets: {
       /**
        * An approval for account `delegate` was cancelled by `owner`.
@@ -189,7 +250,7 @@ declare module '@polkadot/api/types/events' {
       /**
        * A code with the specified hash was removed.
        * \[code_hash\]
-       * 
+       *
        * This happens when the last contract that uses this code hash was removed or evicted.
        **/
       CodeRemoved: AugmentedEvent<ApiType, [Hash]>;
@@ -200,9 +261,9 @@ declare module '@polkadot/api/types/events' {
       /**
        * A custom event emitted by the contract.
        * \[contract, data\]
-       * 
+       *
        * # Params
-       * 
+       *
        * - `contract`: The contract that emitted the event.
        * - `data`: Data supplied by the contract. Metadata generated during contract
        * compilation is needed to decode it.
@@ -219,9 +280,9 @@ declare module '@polkadot/api/types/events' {
       /**
        * Restoration of a contract has been successful.
        * \[restorer, dest, code_hash, rent_allowance\]
-       * 
+       *
        * # Params
-       * 
+       *
        * - `restorer`: Account ID of the restoring contract.
        * - `dest`: Account ID of the restored contract.
        * - `code_hash`: Code hash of the restored contract.
@@ -231,23 +292,23 @@ declare module '@polkadot/api/types/events' {
       /**
        * Triggered when the current schedule is updated.
        * \[version\]
-       * 
+       *
        * # Params
-       * 
+       *
        * - `version`: The version of the newly set schedule.
        **/
       ScheduleUpdated: AugmentedEvent<ApiType, [u32]>;
       /**
        * Contract has been terminated without leaving a tombstone.
        * \[contract, beneficiary\]
-       * 
+       *
        * # Params
-       * 
+       *
        * - `contract`: The contract that was terminated.
        * - `beneficiary`: The account that received the contracts remaining balance.
-       * 
+       *
        * # Note
-       * 
+       *
        * The only way for a contract to be removed without a tombstone and emitting
        * this event is by calling `seal_terminate`.
        **/
@@ -402,7 +463,7 @@ declare module '@polkadot/api/types/events' {
       Slashed: AugmentedEvent<ApiType, [AccountId]>;
       /**
        * A solution was stored with the given compute.
-       * 
+       *
        * If the solution is signed, this means that it hasn't yet been processed. If the
        * solution is unsigned, this means that it has also been processed.
        **/
@@ -420,7 +481,7 @@ declare module '@polkadot/api/types/events' {
       /**
        * A \[candidate\] was slashed by \[amount\] due to failing to obtain a seat as member or
        * runner-up.
-       * 
+       *
        * Note that old members and runners-up are also candidates.
        **/
       CandidateSlashed: AugmentedEvent<ApiType, [AccountId, Balance]>;
@@ -802,7 +863,7 @@ declare module '@polkadot/api/types/events' {
     staking: {
       /**
        * An account has bonded this amount. \[stash, amount\]
-       * 
+       *
        * NOTE: This event is only emitted when funds are bonded via a dispatchable. Notably,
        * it will not be emitted for staking rewards when they are added to stake.
        **/

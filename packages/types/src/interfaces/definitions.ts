@@ -59,6 +59,8 @@ export { default as scaleInfo } from './scaleInfo/definitions';
 
 // other useful types
 export { default as eth } from './eth/definitions';
+export { default as cid } from './cid/definitions';
+export { default as alliance } from './alliance/definitions';
 
 // pull in metadata & rpc last, assuming that is uses info from above
 export { default as metadata } from './metadata/definitions';

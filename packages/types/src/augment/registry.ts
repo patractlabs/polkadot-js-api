@@ -2,6 +2,7 @@
 /* eslint-disable */
 
 import type { BitVec, Bool, Bytes, Compact, Data, DoNotConstruct, I128, I16, I256, I32, I64, I8, Json, Null, Option, Raw, StorageKey, Text, Type, U128, U16, U256, U32, U64, U8, USize, Vec, bool, i128, i16, i256, i32, i64, i8, u128, u16, u256, u32, u64, u8, usize } from '@polkadot/types';
+import type { MemberRole, Url, UserIdentity } from '@polkadot/types/interfaces/alliance';
 import type { AssetApproval, AssetApprovalKey, AssetBalance, AssetDestroyWitness, AssetDetails, AssetMetadata, TAssetBalance, TAssetDepositBalance } from '@polkadot/types/interfaces/assets';
 import type { BlockAttestations, IncludedBlocks, MoreAttestations } from '@polkadot/types/interfaces/attestations';
 import type { RawAuraPreDigest } from '@polkadot/types/interfaces/aura';
@@ -13,6 +14,7 @@ import type { BeefyCommitment, BeefyNextAuthoritySet, BeefyPayload, BeefySignedC
 import type { BridgedBlockHash, BridgedBlockNumber, BridgedHeader, InitializationData } from '@polkadot/types/interfaces/bridges';
 import type { BlockHash } from '@polkadot/types/interfaces/chain';
 import type { PrefixedStorageKey } from '@polkadot/types/interfaces/childstate';
+import type { Cid, CidMultihash, CidVersion } from '@polkadot/types/interfaces/cid';
 import type { EthereumAddress, StatementKind } from '@polkadot/types/interfaces/claims';
 import type { CollectiveOrigin, MemberCount, ProposalIndex, Votes, VotesTo230 } from '@polkadot/types/interfaces/collective';
 import type { AuthorityId, RawVRFOutput } from '@polkadot/types/interfaces/consensus';
@@ -276,6 +278,9 @@ declare module '@polkadot/types/types/registry' {
     'Option<ChainType>': Option<ChainType>;
     'Option<ChangesTrieConfiguration>': Option<ChangesTrieConfiguration>;
     'Option<ChangesTrieSignal>': Option<ChangesTrieSignal>;
+    'Option<Cid>': Option<Cid>;
+    'Option<CidMultihash>': Option<CidMultihash>;
+    'Option<CidVersion>': Option<CidVersion>;
     'Option<ClassDetails>': Option<ClassDetails>;
     'Option<ClassId>': Option<ClassId>;
     'Option<ClassMetadata>': Option<ClassMetadata>;
@@ -597,6 +602,7 @@ declare module '@polkadot/types/types/registry' {
     'Option<MaybeRandomness>': Option<MaybeRandomness>;
     'Option<MaybeVrf>': Option<MaybeVrf>;
     'Option<MemberCount>': Option<MemberCount>;
+    'Option<MemberRole>': Option<MemberRole>;
     'Option<MembershipProof>': Option<MembershipProof>;
     'Option<MessageId>': Option<MessageId>;
     'Option<MessageIngestionType>': Option<MessageIngestionType>;
@@ -952,6 +958,8 @@ declare module '@polkadot/types/types/registry' {
     'Option<UnknownTransaction>': Option<UnknownTransaction>;
     'Option<UnlockChunk>': Option<UnlockChunk>;
     'Option<UpwardMessage>': Option<UpwardMessage>;
+    'Option<Url>': Option<Url>;
+    'Option<UserIdentity>': Option<UserIdentity>;
     'Option<usize>': Option<usize>;
     'Option<USize>': Option<USize>;
     'Option<ValidationCode>': Option<ValidationCode>;
@@ -1150,6 +1158,9 @@ declare module '@polkadot/types/types/registry' {
     'Vec<ChainType>': Vec<ChainType>;
     'Vec<ChangesTrieConfiguration>': Vec<ChangesTrieConfiguration>;
     'Vec<ChangesTrieSignal>': Vec<ChangesTrieSignal>;
+    'Vec<Cid>': Vec<Cid>;
+    'Vec<CidMultihash>': Vec<CidMultihash>;
+    'Vec<CidVersion>': Vec<CidVersion>;
     'Vec<ClassDetails>': Vec<ClassDetails>;
     'Vec<ClassId>': Vec<ClassId>;
     'Vec<ClassMetadata>': Vec<ClassMetadata>;
@@ -1471,6 +1482,7 @@ declare module '@polkadot/types/types/registry' {
     'Vec<MaybeRandomness>': Vec<MaybeRandomness>;
     'Vec<MaybeVrf>': Vec<MaybeVrf>;
     'Vec<MemberCount>': Vec<MemberCount>;
+    'Vec<MemberRole>': Vec<MemberRole>;
     'Vec<MembershipProof>': Vec<MembershipProof>;
     'Vec<MessageId>': Vec<MessageId>;
     'Vec<MessageIngestionType>': Vec<MessageIngestionType>;
@@ -1826,6 +1838,8 @@ declare module '@polkadot/types/types/registry' {
     'Vec<UnknownTransaction>': Vec<UnknownTransaction>;
     'Vec<UnlockChunk>': Vec<UnlockChunk>;
     'Vec<UpwardMessage>': Vec<UpwardMessage>;
+    'Vec<Url>': Vec<Url>;
+    'Vec<UserIdentity>': Vec<UserIdentity>;
     'Vec<usize>': Vec<usize>;
     'Vec<USize>': Vec<USize>;
     'Vec<ValidationCode>': Vec<ValidationCode>;
@@ -2024,6 +2038,9 @@ declare module '@polkadot/types/types/registry' {
     ChainType: ChainType;
     ChangesTrieConfiguration: ChangesTrieConfiguration;
     ChangesTrieSignal: ChangesTrieSignal;
+    Cid: Cid;
+    CidMultihash: CidMultihash;
+    CidVersion: CidVersion;
     ClassDetails: ClassDetails;
     ClassId: ClassId;
     ClassMetadata: ClassMetadata;
@@ -2345,6 +2362,7 @@ declare module '@polkadot/types/types/registry' {
     MaybeRandomness: MaybeRandomness;
     MaybeVrf: MaybeVrf;
     MemberCount: MemberCount;
+    MemberRole: MemberRole;
     MembershipProof: MembershipProof;
     MessageId: MessageId;
     MessageIngestionType: MessageIngestionType;
@@ -2700,6 +2718,8 @@ declare module '@polkadot/types/types/registry' {
     UnknownTransaction: UnknownTransaction;
     UnlockChunk: UnlockChunk;
     UpwardMessage: UpwardMessage;
+    Url: Url;
+    UserIdentity: UserIdentity;
     usize: usize;
     USize: USize;
     ValidationCode: ValidationCode;
