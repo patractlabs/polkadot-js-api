@@ -32,7 +32,7 @@ import type { ClassDetails, ClassId, ClassMetadata, DepositBalanceOf, InstanceDe
 import type { Multisig } from '@polkadot/types/interfaces/utility';
 import type { VestingInfo } from '@polkadot/types/interfaces/vesting';
 import type { ApiTypes } from '@polkadot/api/types';
-import { Cid, MemberRole, Url } from '@polkadot/types/interfaces';
+import type { Cid, MemberRole, Url } from '@polkadot/types/interfaces';
 
 declare module '@polkadot/api/types/storage' {
   export interface AugmentedQueries<ApiType> {

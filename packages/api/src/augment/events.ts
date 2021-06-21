@@ -24,14 +24,14 @@ import type { BountyIndex } from '@polkadot/types/interfaces/treasury';
 import type { ClassId, InstanceId } from '@polkadot/types/interfaces/uniques';
 import type { Timepoint } from '@polkadot/types/interfaces/utility';
 import type { ApiTypes } from '@polkadot/api/types';
-import { Cid, UserIdentity } from '@polkadot/types/interfaces';
+import type { Cid, BlacklistItem } from '@polkadot/types/interfaces';
 
 declare module '@polkadot/api/types/events' {
   export interface AugmentedEvents<ApiType> {
     alliance: {
       AllyElevated: AugmentedEvent<ApiType, [AccountId]>;
-      BlacklistAdded: AugmentedEvent<ApiType, [Vec<UserIdentity>]>;
-      BlacklistRemoved: AugmentedEvent<ApiType, [Vec<UserIdentity>]>;
+      BlacklistAdded: AugmentedEvent<ApiType, [Vec<BlacklistItem>]>;
+      BlacklistRemoved: AugmentedEvent<ApiType, [Vec<BlacklistItem>]>;
       CandidateAdded: AugmentedEvent<ApiType, [AccountId, Option<AccountId>, Option<BalanceOf>]>;
       CandidateApproved: AugmentedEvent<ApiType, [AccountId]>;
       CandidateRejected: AugmentedEvent<ApiType, [AccountId]>;

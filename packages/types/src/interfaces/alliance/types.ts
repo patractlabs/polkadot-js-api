@@ -14,8 +14,8 @@ export interface MemberRole extends Enum {
 /** @name Url */
 export interface Url extends Bytes {}
 
-/** @name UserIdentity */
-export interface UserIdentity extends Enum {
+/** @name BlacklistItem */
+export interface BlacklistItem extends Enum {
   readonly isAccountId: boolean;
   readonly asAccountId: AccountId;
   readonly isWebsite: boolean;

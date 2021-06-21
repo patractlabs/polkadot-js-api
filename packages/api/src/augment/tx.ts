@@ -26,7 +26,7 @@ import type { ClassId, DestroyWitness, InstanceId } from '@polkadot/types/interf
 import type { Timepoint } from '@polkadot/types/interfaces/utility';
 import type { VestingInfo } from '@polkadot/types/interfaces/vesting';
 import type { ApiTypes, SubmittableExtrinsic } from '@polkadot/api/types';
-import { Cid, UserIdentity } from '@polkadot/types/interfaces';
+import type { Cid, BlacklistItem } from '@polkadot/types/interfaces';
 
 declare module '@polkadot/api/types/submittable' {
   export interface AugmentedSubmittables<ApiType> {
@@ -34,7 +34,7 @@ declare module '@polkadot/api/types/submittable' {
       /**
        * Add websites or addresses into blacklist.
        **/
-      addBlacklist: AugmentedSubmittable<(infos: Vec<UserIdentity> | (UserIdentity | { AccountId: any } | { Website: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<UserIdentity>]>;
+      addBlacklist: AugmentedSubmittable<(infos: Vec<BlacklistItem> | (BlacklistItem | { AccountId: any } | { Website: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<BlacklistItem>]>;
       /**
        * Announcement IPFS Hash about dispute between two allies and other issues.
        * Proposer should publish in polkassembly.io first and talked with others,
@@ -82,7 +82,7 @@ declare module '@polkadot/api/types/submittable' {
       /**
        * Remove websites or addresses form blacklist.
        **/
-      removeBlacklist: AugmentedSubmittable<(infos: Vec<UserIdentity> | (UserIdentity | { AccountId: any } | { Website: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<UserIdentity>]>;
+      removeBlacklist: AugmentedSubmittable<(infos: Vec<BlacklistItem> | (BlacklistItem | { AccountId: any } | { Website: any } | string | Uint8Array)[]) => SubmittableExtrinsic<ApiType>, [Vec<BlacklistItem>]>;
       /**
        * As a member, back to outsider and unlock deposit.
        **/
