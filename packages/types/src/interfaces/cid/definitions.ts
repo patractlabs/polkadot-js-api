@@ -15,11 +15,7 @@ export default {
         'V1'
       ]
     },
-    CidMultihash: {
-      codec: 'u64',
-      size1: 'u8',
-      digest: 'Raw'
-    },
+    CidMultihash: 'GenericCidMultihash',
     Cid: {
       version: 'CidVersion',
       codec: 'u64',

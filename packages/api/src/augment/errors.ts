@@ -14,14 +14,17 @@ declare module '@polkadot/api/types/errors' {
       InsufficientCandidateFunds: AugmentedError<ApiType>;
       KickingMember: AugmentedError<ApiType>;
       MissingProposalHash: AugmentedError<ApiType>;
-      NoIdentity: AugmentedError<ApiType>;
+      NoDisplayName: AugmentedError<ApiType>;
+      NoJudgedIdentity: AugmentedError<ApiType>;
       NotAlly: AugmentedError<ApiType>;
       NotCandidate: AugmentedError<ApiType>;
       NotFounder: AugmentedError<ApiType>;
       NotInBlacklist: AugmentedError<ApiType>;
+      NotKickingMember: AugmentedError<ApiType>;
       NotMember: AugmentedError<ApiType>;
       NotVetoableProposal: AugmentedError<ApiType>;
       NotVotableMember: AugmentedError<ApiType>;
+      NoWebsite: AugmentedError<ApiType>;
       /**
        * Generic error
        **/

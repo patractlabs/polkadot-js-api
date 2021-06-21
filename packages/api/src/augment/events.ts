@@ -24,20 +24,20 @@ import type { BountyIndex } from '@polkadot/types/interfaces/treasury';
 import type { ClassId, InstanceId } from '@polkadot/types/interfaces/uniques';
 import type { Timepoint } from '@polkadot/types/interfaces/utility';
 import type { ApiTypes } from '@polkadot/api/types';
-import { Cid, UserIdentity } from '@polkadot/types/interfaces';
+import { BlacklistItem, Cid } from '@polkadot/types/interfaces';
 
 declare module '@polkadot/api/types/events' {
   export interface AugmentedEvents<ApiType> {
     alliance: {
       AllyElevated: AugmentedEvent<ApiType, [AccountId]>;
-      BlacklistAdded: AugmentedEvent<ApiType, [Vec<UserIdentity>]>;
-      BlacklistRemoved: AugmentedEvent<ApiType, [Vec<UserIdentity>]>;
+      BlacklistAdded: AugmentedEvent<ApiType, [Vec<BlacklistItem>]>;
+      BlacklistRemoved: AugmentedEvent<ApiType, [Vec<BlacklistItem>]>;
       CandidateAdded: AugmentedEvent<ApiType, [AccountId, Option<AccountId>, Option<BalanceOf>]>;
       CandidateApproved: AugmentedEvent<ApiType, [AccountId]>;
       CandidateRejected: AugmentedEvent<ApiType, [AccountId]>;
       FoundersInitialized: AugmentedEvent<ApiType, [Vec<AccountId>]>;
-      MemberKicked: AugmentedEvent<ApiType, [AccountId]>;
-      MemberRetired: AugmentedEvent<ApiType, [AccountId]>;
+      MemberKicked: AugmentedEvent<ApiType, [AccountId, Option<BalanceOf>]>;
+      MemberRetired: AugmentedEvent<ApiType, [AccountId, Option<BalanceOf>]>;
       NewAnnouncement: AugmentedEvent<ApiType, [Cid]>;
       NewRule: AugmentedEvent<ApiType, [Cid]>;
       /**

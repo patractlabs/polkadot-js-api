@@ -2,7 +2,7 @@
 /* eslint-disable */
 
 import type { BitVec, Bool, Bytes, Compact, Data, DoNotConstruct, I128, I16, I256, I32, I64, I8, Json, Null, Option, Raw, StorageKey, Text, Type, U128, U16, U256, U32, U64, U8, USize, Vec, bool, i128, i16, i256, i32, i64, i8, u128, u16, u256, u32, u64, u8, usize } from '@polkadot/types';
-import type { MemberRole, Url, UserIdentity } from '@polkadot/types/interfaces/alliance';
+import type { BlacklistItem, MemberRole, Url } from '@polkadot/types/interfaces/alliance';
 import type { AssetApproval, AssetApprovalKey, AssetBalance, AssetDestroyWitness, AssetDetails, AssetMetadata, TAssetBalance, TAssetDepositBalance } from '@polkadot/types/interfaces/assets';
 import type { BlockAttestations, IncludedBlocks, MoreAttestations } from '@polkadot/types/interfaces/attestations';
 import type { RawAuraPreDigest } from '@polkadot/types/interfaces/aura';
@@ -236,6 +236,7 @@ declare module '@polkadot/types/types/registry' {
     'Option<Bidder>': Option<Bidder>;
     'Option<BidKind>': Option<BidKind>;
     'Option<BitVec>': Option<BitVec>;
+    'Option<BlacklistItem>': Option<BlacklistItem>;
     'Option<Block>': Option<Block>;
     'Option<BlockAttestations>': Option<BlockAttestations>;
     'Option<BlockHash>': Option<BlockHash>;
@@ -959,7 +960,6 @@ declare module '@polkadot/types/types/registry' {
     'Option<UnlockChunk>': Option<UnlockChunk>;
     'Option<UpwardMessage>': Option<UpwardMessage>;
     'Option<Url>': Option<Url>;
-    'Option<UserIdentity>': Option<UserIdentity>;
     'Option<usize>': Option<usize>;
     'Option<USize>': Option<USize>;
     'Option<ValidationCode>': Option<ValidationCode>;
@@ -1116,6 +1116,7 @@ declare module '@polkadot/types/types/registry' {
     'Vec<Bidder>': Vec<Bidder>;
     'Vec<BidKind>': Vec<BidKind>;
     'Vec<BitVec>': Vec<BitVec>;
+    'Vec<BlacklistItem>': Vec<BlacklistItem>;
     'Vec<Block>': Vec<Block>;
     'Vec<BlockAttestations>': Vec<BlockAttestations>;
     'Vec<BlockHash>': Vec<BlockHash>;
@@ -1839,7 +1840,6 @@ declare module '@polkadot/types/types/registry' {
     'Vec<UnlockChunk>': Vec<UnlockChunk>;
     'Vec<UpwardMessage>': Vec<UpwardMessage>;
     'Vec<Url>': Vec<Url>;
-    'Vec<UserIdentity>': Vec<UserIdentity>;
     'Vec<usize>': Vec<usize>;
     'Vec<USize>': Vec<USize>;
     'Vec<ValidationCode>': Vec<ValidationCode>;
@@ -1996,6 +1996,7 @@ declare module '@polkadot/types/types/registry' {
     Bidder: Bidder;
     BidKind: BidKind;
     BitVec: BitVec;
+    BlacklistItem: BlacklistItem;
     Block: Block;
     BlockAttestations: BlockAttestations;
     BlockHash: BlockHash;
@@ -2719,7 +2720,6 @@ declare module '@polkadot/types/types/registry' {
     UnlockChunk: UnlockChunk;
     UpwardMessage: UpwardMessage;
     Url: Url;
-    UserIdentity: UserIdentity;
     usize: usize;
     USize: USize;
     ValidationCode: ValidationCode;

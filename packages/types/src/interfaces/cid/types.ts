@@ -1,7 +1,7 @@
 // Auto-generated via `yarn polkadot-types-from-defs`, do not edit
 /* eslint-disable */
 
-import type { Enum, Raw, Struct, u64, u8 } from '@polkadot/types';
+import type { Enum, GenericCidMultihash, Struct, u64 } from '@polkadot/types';
 
 /** @name Cid */
 export interface Cid extends Struct {
@@ -11,11 +11,7 @@ export interface Cid extends Struct {
 }
 
 /** @name CidMultihash */
-export interface CidMultihash extends Struct {
-  readonly codec: u64;
-  readonly size1: u8;
-  readonly digest: Raw;
-}
+export interface CidMultihash extends GenericCidMultihash {}
 
 /** @name CidVersion */
 export interface CidVersion extends Enum {

@@ -17,7 +17,7 @@ export default {
       ]
     },
     Url: 'Vec<u8>',
-    UserIdentity: {
+    BlacklistItem: {
       _enum: {
         AccountId: 'AccountId',
         Website: 'Vec<u8>'
