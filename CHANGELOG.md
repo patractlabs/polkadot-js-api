@@ -4,9 +4,28 @@
 
 Changes:
 
+- Add Kusama & Westend 9050 upgrade blocks
+- Align static metadata with latest Substrate
+
+
+## 4.15.1 Jun 19, 2021
+
+Upgrade priority: Medium. Recommended for all chains where Xcm is used (addition of new `XcmOrigin`)
+
+Contributed:
+
+- Added `ChargeAssetTxPayment` extension (Thanks to https://github.com/apopiak)
+
+Changes:
+
+- Allow for type decoding of nested fixed vectors, tuples and structs
 - Added `childstate_getKeysPaged` RPC
+- Add `XcmOrigin` mapping for `OriginCaller` generation
 - Align static metadata with latest Substrate
 - Adjust error message for contracts V3 (extrinsic from runtime)
+- Correct module optionality in `api.derive.balances.account`
+- Add alias for `GenericAddress` -> `GenericMultiAddress`
+- Adjust metadata doc generation (keep spaces between subsequent lines)
 
 
 ## 4.14.1 Jun 14, 2021

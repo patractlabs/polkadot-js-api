@@ -623,6 +623,10 @@ declare module '@polkadot/api/types/errors' {
     };
     electionProviderMultiPhase: {
       /**
+       * The call is not allowed at this point.
+       **/
+      CallNotAllowed: AugmentedError<ApiType>;
+      /**
        * OCW submitted solution for wrong round
        **/
       OcwCallWrongEra: AugmentedError<ApiType>;
@@ -1254,6 +1258,10 @@ declare module '@polkadot/api/types/errors' {
        **/
       BadTarget: AugmentedError<ApiType>;
       /**
+       * The user has enough bond and thus cannot be chilled forcefully by an external person.
+       **/
+      CannotChillOther: AugmentedError<ApiType>;
+      /**
        * Duplicate index.
        **/
       DuplicateIndex: AugmentedError<ApiType>;
@@ -1274,9 +1282,9 @@ declare module '@polkadot/api/types/errors' {
        **/
       IncorrectSlashingSpans: AugmentedError<ApiType>;
       /**
-       * Can not bond with value less than minimum balance.
+       * Can not bond with value less than minimum required.
        **/
-      InsufficientValue: AugmentedError<ApiType>;
+      InsufficientBond: AugmentedError<ApiType>;
       /**
        * Invalid era to reward.
        **/
@@ -1310,9 +1318,19 @@ declare module '@polkadot/api/types/errors' {
        **/
       NoUnlockChunk: AugmentedError<ApiType>;
       /**
+       * There are too many nominators in the system. Governance needs to adjust the staking settings
+       * to keep things safe for the runtime.
+       **/
+      TooManyNominators: AugmentedError<ApiType>;
+      /**
        * Too many nomination targets supplied.
        **/
       TooManyTargets: AugmentedError<ApiType>;
+      /**
+       * There are too many validators in the system. Governance needs to adjust the staking settings
+       * to keep things safe for the runtime.
+       **/
+      TooManyValidators: AugmentedError<ApiType>;
       /**
        * Generic error
        **/
