@@ -3,15 +3,15 @@
 
 /* eslint-disable no-dupe-class-members */
 
+import type { Observable } from 'rxjs';
 import type { Address, ApplyExtrinsicResult, Call, Extrinsic, ExtrinsicEra, ExtrinsicStatus, Hash, Header, Index, RuntimeDispatchInfo } from '@polkadot/types/interfaces';
 import type { Callback, Codec, Constructor, IKeyringPair, ISubmittableResult, Registry, SignatureOptions } from '@polkadot/types/types';
-import type { Observable } from '@polkadot/x-rxjs';
 import type { ApiInterfaceRx, ApiTypes, SignerResult } from '../types';
 import type { AddressOrPair, SignerOptions, SubmittableDryRunResult, SubmittableExtrinsic, SubmittablePaymentResult, SubmittableResultResult, SubmittableResultSubscription, SubmittableThis } from './types';
 
+import { catchError, first, map, mapTo, mergeMap, of, switchMap, tap } from 'rxjs';
+
 import { assert, isBn, isFunction, isNumber, isString, isU8a } from '@polkadot/util';
-import { of } from '@polkadot/x-rxjs';
-import { catchError, first, map, mapTo, mergeMap, switchMap, tap } from '@polkadot/x-rxjs/operators';
 
 import { ApiBase } from '../base';
 import { filterEvents, isKeyringPair } from '../util';
@@ -110,7 +110,7 @@ export function createClass <ApiType extends ApiTypes> ({ api, apiType, decorate
      * @description Sign a transaction, returning the this to allow chaining, i.e. .sign(...).send(). When options, e.g. nonce/blockHash are not specified, it will be inferred. To retrieve eg. nonce use `signAsync` (the preferred interface, this is provided for backwards compatibility)
      * @deprecated
      */
-    public sign (account: IKeyringPair, optionsOrNonce?: Partial<SignerOptions>): this {
+    public override sign (account: IKeyringPair, optionsOrNonce?: Partial<SignerOptions>): this {
       super.sign(account, this.#makeSignOptions(this.#optionsOrNonce(optionsOrNonce), {}));
 
       return this;

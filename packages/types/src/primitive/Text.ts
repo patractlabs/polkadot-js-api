@@ -13,7 +13,7 @@ const MAX_LENGTH = 128 * 1024;
 /** @internal */
 function decodeText (value?: null | Text | string | AnyU8a | { toString: () => string }): string {
   if (isHex(value)) {
-    return u8aToString(hexToU8a(value.toString()));
+    return u8aToString(hexToU8a(value));
   } else if (value instanceof Uint8Array) {
     if (!value.length) {
       return '';
@@ -84,7 +84,7 @@ export class Text extends String implements Codec {
   /**
    * @description The length of the value
    */
-  public get length (): number {
+  public override get length (): number {
     // only included here since we ignore inherited docs
     return super.length;
   }
@@ -138,7 +138,7 @@ export class Text extends String implements Codec {
   /**
    * @description Returns the string representation of the value
    */
-  public toString (): string {
+  public override toString (): string {
     return this.#override || super.toString();
   }
 

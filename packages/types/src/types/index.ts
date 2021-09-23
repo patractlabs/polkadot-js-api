@@ -8,10 +8,11 @@ export * from '../create/types';
 export * from './calls';
 export * from './codec';
 export * from './definitions';
+export * from './detect';
 export * from './events';
 export * from './extrinsic';
 export * from './interfaces';
 export * from './registry';
 
 // used inside augmented definitions
-export type { Observable } from '@polkadot/x-rxjs';
+export type { Observable } from 'rxjs';

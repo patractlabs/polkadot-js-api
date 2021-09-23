@@ -26,7 +26,9 @@ export default {
   rpc: {},
   types: {
     ...numberTypes,
-    AccountId: 'GenericAccountId',
+    AccountId: 'AccountId32',
+    AccountId20: 'GenericEthereumAccountId',
+    AccountId32: 'GenericAccountId',
     AccountIdOf: 'AccountId',
     AccountIndex: 'GenericAccountIndex',
     Address: 'MultiAddress',
@@ -35,6 +37,8 @@ export default {
     BalanceOf: 'Balance',
     Block: 'GenericBlock',
     BlockNumber: 'u32',
+    BlockNumberFor: 'BlockNumber',
+    BlockNumberOf: 'BlockNumber',
     Call: 'GenericCall',
     CallHash: 'Hash',
     CallHashOf: 'CallHash',
@@ -61,7 +65,8 @@ export default {
         Consensus: 'Consensus', // 4
         Seal: 'Seal', // 5
         PreRuntime: 'PreRuntime', // 6
-        ChangesTrieSignal: 'ChangesTrieSignal' // 7
+        ChangesTrieSignal: 'ChangesTrieSignal', // 7
+        RuntimeEnvironmentUpdated: 'Null' // 8
       }
     },
     ExtrinsicsWeight: {

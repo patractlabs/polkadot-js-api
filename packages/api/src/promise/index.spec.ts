@@ -3,10 +3,12 @@
 
 import type { SubmittableExtrinsic } from '../types';
 
+import { jest } from '@jest/globals';
+
 import { createPair } from '@polkadot/keyring/pair';
 import { createTestKeyring } from '@polkadot/keyring/testing';
 import { MockProvider } from '@polkadot/rpc-provider/mock';
-import { TypeRegistry } from '@polkadot/types/create';
+import { TypeRegistry } from '@polkadot/types';
 import { hexToU8a } from '@polkadot/util';
 
 import { SingleAccountSigner } from '../../test/util';
@@ -37,7 +39,7 @@ describe('ApiPromise', (): void => {
     };
 
     const signer = new SingleAccountSigner(registry, aliceEd);
-    const api = await ApiPromise.create({ provider, registry, signer });
+    const api = await ApiPromise.create({ provider, registry, signer, throwOnConnect: true });
     const transfer = api.tx.balances.transfer(keyring.getPair('0xe659a7a1628cdd93febc04a4e0646ea20e9f5f0ce097d9a05290d4a9e054df4e').address, 321564789876512345n);
 
     return { api, transfer: await transfer.signAsync(aliceEd.address, {}) };
@@ -57,7 +59,7 @@ describe('ApiPromise', (): void => {
       const rpcData = await provider.send<string>('state_getMetadata', []);
       const genesisHash = registry.createType('Hash', await provider.send('chain_getBlockHash', [])).toHex();
       const specVersion = 0;
-      const api = await ApiPromise.create({ metadata: { [`${genesisHash}-${specVersion}`]: rpcData }, provider, registry });
+      const api = await ApiPromise.create({ metadata: { [`${genesisHash}-${specVersion}`]: rpcData }, provider, registry, throwOnConnect: true });
 
       expect(api.genesisHash).toBeDefined();
       expect(api.runtimeMetadata).toBeDefined();
@@ -72,7 +74,7 @@ describe('ApiPromise', (): void => {
 
     it('Create API instance without metadata and makes the runtime, rpc, state & extrinsics available', async (): Promise<void> => {
       const metadata = {};
-      const api = await ApiPromise.create({ metadata, provider, registry });
+      const api = await ApiPromise.create({ metadata, provider, registry, throwOnConnect: true });
 
       expect(api.genesisHash).toBeDefined();
       expect(api.runtimeMetadata).toBeDefined();
@@ -91,22 +93,20 @@ describe('ApiPromise', (): void => {
           super({ provider });
         }
 
-        protected _loadMeta (): Promise<boolean> {
+        protected override _loadMeta (): Promise<boolean> {
           throw new Error('Simulate failure to load meta');
         }
       }
 
-      const api = new ErrorApiPromise();
-
       try {
-        await api.isReadyOrError;
+        const api = await ErrorApiPromise.create({ provider, throwOnConnect: true });
+
+        await api.disconnect();
 
         fail('Expected an error but none occurred.');
       } catch {
         // Pass
       }
-
-      await api.disconnect();
     });
   });
 
@@ -116,7 +116,7 @@ describe('ApiPromise', (): void => {
     const SIG = '0x659effefbbe5ab4d7136ebb5084b959eb424e32b862307371be4721ac2c46334245af4f1476c36c5e5aff04396c2fdd2ce561ec90382821d4aa071b559b1db0f';
 
     it('signs data using a specified keyring', async (): Promise<void> => {
-      const api = await ApiPromise.create({ provider, registry });
+      const api = await ApiPromise.create({ provider, registry, throwOnConnect: true });
       const sig = await api.sign(aliceEd, TEST);
 
       expect(sig).toEqual(SIG);
@@ -125,11 +125,7 @@ describe('ApiPromise', (): void => {
     });
 
     it('signs data using an external signer', async (): Promise<void> => {
-      const api = await ApiPromise.create({
-        provider,
-        registry,
-        signer: new SingleAccountSigner(registry, aliceEd)
-      });
+      const api = await ApiPromise.create({ provider, registry, signer: new SingleAccountSigner(registry, aliceEd), throwOnConnect: true });
       const sig = await api.sign(ADDR, TEST);
 
       expect(sig).toEqual(SIG);

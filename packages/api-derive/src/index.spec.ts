@@ -5,18 +5,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 
+import { from, Observable } from 'rxjs';
+
 import { ApiRx } from '@polkadot/api/rx';
 import { MockProvider } from '@polkadot/rpc-provider/mock';
 import { TypeRegistry } from '@polkadot/types/create';
-import { from, Observable } from '@polkadot/x-rxjs';
 
 import { ExactDerive } from '.';
 
 const testFunction = (api: ApiRx): any => {
-  return <
-    Section extends keyof ExactDerive,
-    Method extends keyof (typeof api.derive[Section])
-  >(section: Section, method: Method, inputs: any[]): void => {
+  return <S extends keyof ExactDerive, M extends keyof (typeof api.derive[S])>(section: S, method: M, inputs: any[]): void => {
     describe(`derive.${section}.${method}`, (): void => {
       it('should be a function', (): void => {
         expect(typeof api.derive[section][method]).toBe('function');
@@ -80,7 +78,8 @@ describe('derive', (): void => {
         }
       },
       provider: new MockProvider(registry),
-      registry
+      registry,
+      throwOnConnect: true
     });
 
     beforeAll((done): void => {
@@ -95,7 +94,7 @@ describe('derive', (): void => {
     testFunction(api)('balances', 'fees', ['a', 'b']);
 
     // new
-    testFunction(api)('custom' as any, 'test', [1, 2, 3]);
+    testFunction(api)('custom', 'test', [1, 2, 3]);
 
     // existing
     testFunction(api)('chain', 'bestNumber', []);

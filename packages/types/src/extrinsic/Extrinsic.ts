@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { EcdsaSignature, Ed25519Signature, ExtrinsicUnknown, ExtrinsicV4, Sr25519Signature } from '../interfaces/extrinsics';
-import type { FunctionMetadataLatest } from '../interfaces/metadata/types';
+import type { FunctionMetadataLatest } from '../interfaces/metadata';
 import type { Address, Balance, Call, Index } from '../interfaces/runtime';
-import type { AnyJson, AnyTuple, AnyU8a, ArgsDef, CallBase, ExtrinsicPayloadValue, IExtrinsic, IKeyringPair, IMethod, InterfaceTypes, Registry, SignatureOptions } from '../types';
+import type { AnyJson, AnyTuple, AnyU8a, ArgsDef, CallBase, ExtrinsicPayloadValue, IExtrinsic, IKeyringPair, IMethod, Registry, SignatureOptions } from '../types';
 import type { GenericExtrinsicEra } from './ExtrinsicEra';
 import type { ExtrinsicValueV4 } from './v4/Extrinsic';
 
@@ -24,7 +24,7 @@ interface CreateOptions {
 type ExtrinsicVx = ExtrinsicV4;
 type ExtrinsicValue = ExtrinsicValueV4;
 
-const VERSIONS: (keyof InterfaceTypes)[] = [
+const VERSIONS = [
   'ExtrinsicUnknown', // v0 is unknown
   'ExtrinsicUnknown',
   'ExtrinsicUnknown',
@@ -73,7 +73,7 @@ abstract class ExtrinsicBase<A extends AnyTuple> extends Base<ExtrinsicVx | Extr
   /**
    * @description The length of the value when encoded as a Uint8Array
    */
-  public get encodedLength (): number {
+  public override get encodedLength (): number {
     return this.toU8a().length;
   }
 
@@ -183,7 +183,7 @@ export class GenericExtrinsic<A extends AnyTuple = AnyTuple> extends ExtrinsicBa
 
     // we cast here since the VERSION definition is incredibly broad - we don't have a
     // slice for "only add extrinsic types", and more string definitions become unwieldy
-    return registry.createType(type, value, { isSigned, version }) as ExtrinsicVx;
+    return registry.createType(type, value, { isSigned, version });
   }
 
   /** @internal */
@@ -243,14 +243,14 @@ export class GenericExtrinsic<A extends AnyTuple = AnyTuple> extends ExtrinsicBa
   /**
    * @description Returns a hex string representation of the value
    */
-  public toHex (isBare?: boolean): string {
+  public override toHex (isBare?: boolean): string {
     return u8aToHex(this.toU8a(isBare));
   }
 
   /**
    * @description Converts the Object to to a human-friendly JSON, with additional fields, expansion and formatting of information
    */
-  public toHuman (isExpanded?: boolean): AnyJson {
+  public override toHuman (isExpanded?: boolean): AnyJson {
     return {
       isSigned: this.isSigned,
       method: this.method.toHuman(isExpanded),
@@ -270,14 +270,14 @@ export class GenericExtrinsic<A extends AnyTuple = AnyTuple> extends ExtrinsicBa
   /**
    * @description Converts the Object to JSON, typically used for RPC transfers
    */
-  public toJSON (): string {
+  public override toJSON (): string {
     return this.toHex();
   }
 
   /**
    * @description Returns the base runtime type name for this instance
    */
-  public toRawType (): string {
+  public override toRawType (): string {
     return 'Extrinsic';
   }
 
@@ -285,7 +285,7 @@ export class GenericExtrinsic<A extends AnyTuple = AnyTuple> extends ExtrinsicBa
    * @description Encodes the value as a Uint8Array as per the SCALE specifications
    * @param isBare true when the value is not length-prefixed
    */
-  public toU8a (isBare?: boolean): Uint8Array {
+  public override toU8a (isBare?: boolean): Uint8Array {
     // we do not apply bare to the internal values, rather this only determines out length addition,
     // where we strip all lengths this creates an extrinsic that cannot be decoded
     const encoded = u8aConcat(new Uint8Array([this.version]), this._raw.toU8a());

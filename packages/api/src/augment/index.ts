@@ -1,9 +1,10 @@
-// Copyright 2017-2021 @polkadot/api authors & contributors
-// SPDX-License-Identifier: Apache-2.0
+// Auto-generated via `yarn polkadot-types-from-chain`, do not edit
+/* eslint-disable */
 
+import '@polkadot/types/augment';
 import './consts';
 import './errors';
 import './events';
 import './query';
-import './rpc';
 import './tx';
+import './rpc';

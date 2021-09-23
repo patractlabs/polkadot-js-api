@@ -33,6 +33,8 @@ const versioned: OverrideVersionedType[] = [
       ...sharedTypes,
       ...addrAccountIdTypes,
       CompactAssignments: 'CompactAssignmentsTo257',
+      DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       Multiplier: 'Fixed64',
       OpenTip: 'OpenTipTo225',
       RefCount: 'RefCountTo259',
@@ -45,6 +47,8 @@ const versioned: OverrideVersionedType[] = [
       ...sharedTypes,
       ...addrAccountIdTypes,
       CompactAssignments: 'CompactAssignmentsTo257',
+      DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       OpenTip: 'OpenTipTo225',
       RefCount: 'RefCountTo259'
     }
@@ -55,6 +59,8 @@ const versioned: OverrideVersionedType[] = [
       ...sharedTypes,
       ...addrAccountIdTypes,
       CompactAssignments: 'CompactAssignmentsTo257',
+      DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       RefCount: 'RefCountTo259'
     }
   },
@@ -63,6 +69,8 @@ const versioned: OverrideVersionedType[] = [
     types: {
       ...sharedTypes,
       ...addrAccountIdTypes,
+      DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       RefCount: 'RefCountTo259'
     }
   },
@@ -83,7 +91,13 @@ const versioned: OverrideVersionedType[] = [
   {
     minmax: [50, undefined],
     types: {
-      ...sharedTypes
+      ...sharedTypes,
+      AssetInstance: 'AssetInstanceV0',
+      MultiAsset: 'MultiAssetV0',
+      MultiLocation: 'MultiLocationV0',
+      Response: 'ResponseV0',
+      Xcm: 'XcmV0',
+      XcmOrder: 'XcmOrderV0'
     }
   }
 ];

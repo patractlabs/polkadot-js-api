@@ -21,7 +21,8 @@ function consts (api: ApiPromise): void {
   console.log(
     api.consts.foo.bar,
     api.consts.balances.existentialDeposit.toNumber(),
-    api.consts.balances.existentialDeposit.meta.documentation.map((s): string => s.toString()).join('')
+    api.consts.balances.existentialDeposit.meta.docs.map((s) => s.toString()).join(''),
+    api.consts.system.blockWeights.maxBlock.divn(123).toNumber()
   );
 }
 
@@ -190,7 +191,7 @@ function types (api: ApiPromise): void {
 }
 
 async function tx (api: ApiPromise, pairs: TestKeyringMap): Promise<void> {
-  // transfer, also allows for BigInt inputs here
+  // transfer, also allows for bigint inputs here
   const transfer = api.tx.balances.transfer(pairs.bob.address, 123456789n);
 
   console.log('transfer casted', transfer as IMethod<AnyTuple>, transfer as IExtrinsic<AnyTuple>);
@@ -239,6 +240,16 @@ async function tx (api: ApiPromise, pairs: TestKeyringMap): Promise<void> {
   }
 }
 
+async function at (api: ApiPromise): Promise<void> {
+  const apiAt = await api.at('0x1234');
+
+  // get old balances
+  console.log(await apiAt.query.balances.freeBalance('0x1234'));
+
+  // get some constants
+  console.log(apiAt.consts.balances.existentialDeposit);
+}
+
 async function main (): Promise<void> {
   const api = await ApiPromise.create();
   const pairs = createTestPairs();
@@ -253,7 +264,8 @@ async function main (): Promise<void> {
     queryExtra(api, pairs),
     rpc(api),
     types(api),
-    tx(api, pairs)
+    tx(api, pairs),
+    at(api)
   ]);
 }
 

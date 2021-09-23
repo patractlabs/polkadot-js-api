@@ -1,6 +1,8 @@
 // Copyright 2017-2021 @polkadot/api authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { jest } from '@jest/globals';
+
 import { ApiPromise, WsProvider } from '@polkadot/api';
 
 describe('misc online tests', (): void => {
@@ -18,6 +20,11 @@ describe('misc online tests', (): void => {
 
   afterEach(async () => {
     await api.disconnect();
+  });
+
+  it('expose rpc and rx definition', (): void => {
+    console.error(api.rpc.payment.queryFeeDetails.meta);
+    console.error(api.rx.rpc.chain.getBlock.meta);
   });
 
   it.skip('retrieves balances correctly', async (): Promise<void> => {
@@ -61,11 +68,5 @@ describe('misc online tests', (): void => {
     console.error(JSON.stringify(
       await api.query.society.defenderVotes('Dab4bfYTZRUDMWjYAUQuFbDreQ9mt7nULWu3Dw7jodbzVe9')
     ));
-  });
-
-  it('expose rpc and rx definition', (): void => {
-    console.error(api.rpc.payment.queryFeeDetails.meta);
-
-    console.error(api.rx.rpc.chain.getBlock.meta);
   });
 });

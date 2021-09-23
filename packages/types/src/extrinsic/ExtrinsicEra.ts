@@ -113,7 +113,7 @@ export class MortalEra extends Tuple {
   /**
    * @description Encoded length for mortals occupy 2 bytes, different from the actual Tuple since it is encoded. This is a shortcut fro `toU8a().length`
    */
-  public get encodedLength (): number {
+  public override get encodedLength (): number {
     return 2;
   }
 
@@ -134,7 +134,7 @@ export class MortalEra extends Tuple {
   /**
    * @description Converts the Object to to a human-friendly JSON, with additional fields, expansion and formatting of information
    */
-  public toHuman (): any {
+  public override toHuman (): any {
     return {
       period: formatNumber(this.period),
       phase: formatNumber(this.phase)
@@ -144,7 +144,7 @@ export class MortalEra extends Tuple {
   /**
    * @description Returns a JSON representation of the actual value
    */
-  public toJSON (): any {
+  public override toJSON (): any {
     return this.toHex();
   }
 
@@ -159,7 +159,7 @@ export class MortalEra extends Tuple {
    *     `period` is.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public toU8a (isBare?: boolean): Uint8Array {
+  public override toU8a (isBare?: boolean): Uint8Array {
     const period = this.period.toNumber();
     const phase = this.phase.toNumber();
     const quantizeFactor = Math.max(period >> 12, 1);
@@ -208,12 +208,14 @@ export class GenericExtrinsicEra extends Enum implements IExtrinsicEra {
   /** @internal */
   // eslint-disable-next-line @typescript-eslint/ban-types
   private static _decodeExtrinsicEra (value: IExtrinsicEra | MortalMethod | MortalEnumDef | ImmortalEnumDef | Uint8Array | string = new Uint8Array()): Uint8Array | Object | undefined {
-    if (value instanceof GenericExtrinsicEra) {
+    if (!value) {
+      return new Uint8Array([0]);
+    } else if (value instanceof GenericExtrinsicEra) {
       return GenericExtrinsicEra._decodeExtrinsicEra(value.toU8a());
     } else if (isHex(value)) {
       return GenericExtrinsicEra._decodeExtrinsicEra(hexToU8a(value));
-    } else if (!value || isU8a(value)) {
-      return (!value?.length || value[0] === 0)
+    } else if (isU8a(value)) {
+      return (!value.length || value[0] === 0)
         ? new Uint8Array([0])
         : new Uint8Array([1, value[0], value[1]]);
     } else if (isObject(value)) {
@@ -235,7 +237,7 @@ export class GenericExtrinsicEra extends Enum implements IExtrinsicEra {
   /**
    * @description Override the encoded length method
    */
-  public get encodedLength (): number {
+  public override get encodedLength (): number {
     return this.isImmortalEra
       ? this.asImmortalEra.encodedLength
       : this.asMortalEra.encodedLength;
@@ -277,7 +279,7 @@ export class GenericExtrinsicEra extends Enum implements IExtrinsicEra {
    * @description Encodes the value as a Uint8Array as per the parity-codec specifications
    * @param isBare true when the value has none of the type-specific prefixes (internal)
    */
-  public toU8a (isBare?: boolean): Uint8Array {
+  public override toU8a (isBare?: boolean): Uint8Array {
     return this.isMortalEra
       ? this.asMortalEra.toU8a(isBare)
       : this.asImmortalEra.toU8a(isBare);

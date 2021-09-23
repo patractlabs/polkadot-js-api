@@ -1,10 +1,12 @@
 // Auto-generated via `yarn polkadot-types-from-chain`, do not edit
 /* eslint-disable */
 
+import type { ApiTypes } from '@polkadot/api/types';
 import type { Bytes, Option, Vec, bool, u16, u32, u8 } from '@polkadot/types';
-import type { ITuple } from '@polkadot/types/types';
+import type { BlacklistItem } from '@polkadot/types/interfaces/alliance';
 import type { TAssetBalance } from '@polkadot/types/interfaces/assets';
 import type { BalanceStatus } from '@polkadot/types/interfaces/balances';
+import type { Cid } from '@polkadot/types/interfaces/cid';
 import type { MemberCount, ProposalIndex } from '@polkadot/types/interfaces/collective';
 import type { AuthorityId } from '@polkadot/types/interfaces/consensus';
 import type { PropIndex, ReferendumIndex } from '@polkadot/types/interfaces/democracy';
@@ -23,22 +25,57 @@ import type { DispatchError, DispatchInfo, DispatchResult } from '@polkadot/type
 import type { BountyIndex } from '@polkadot/types/interfaces/treasury';
 import type { ClassId, InstanceId } from '@polkadot/types/interfaces/uniques';
 import type { Timepoint } from '@polkadot/types/interfaces/utility';
-import type { ApiTypes } from '@polkadot/api/types';
-import { BlacklistItem, Cid } from '@polkadot/types/interfaces';
+import type { ITuple } from '@polkadot/types/types';
 
 declare module '@polkadot/api/types/events' {
   export interface AugmentedEvents<ApiType> {
     alliance: {
+      /**
+       * As an active member, an ally has been elevated to fellow. \[ally\]
+       **/
       AllyElevated: AugmentedEvent<ApiType, [AccountId]>;
+      /**
+       * Accounts or websites have been added into blacklist. \[items\]
+       **/
       BlacklistAdded: AugmentedEvent<ApiType, [Vec<BlacklistItem>]>;
+      /**
+       * Accounts or websites have been removed from blacklist. \[items\]
+       **/
       BlacklistRemoved: AugmentedEvent<ApiType, [Vec<BlacklistItem>]>;
+      /**
+       * An account has been added as a candidate and lock its deposit. \[candidate, nominator,
+       * reserved\]
+       **/
       CandidateAdded: AugmentedEvent<ApiType, [AccountId, Option<AccountId>, Option<BalanceOf>]>;
+      /**
+       * A proposal has been proposed to approve the candidate. \[candidate\]
+       **/
       CandidateApproved: AugmentedEvent<ApiType, [AccountId]>;
+      /**
+       * A proposal has been proposed to reject the candidate. \[candidate\]
+       **/
       CandidateRejected: AugmentedEvent<ApiType, [AccountId]>;
+      /**
+       * Some accounts have been initialized to founders. \[founders\]
+       **/
       FoundersInitialized: AugmentedEvent<ApiType, [Vec<AccountId>]>;
+      /**
+       * A member has been kicked out to an ordinary account with its deposit slashed. \[member,
+       * slashed\]
+       **/
       MemberKicked: AugmentedEvent<ApiType, [AccountId, Option<BalanceOf>]>;
+      /**
+       * A member has retired to an ordinary account with its deposit unreserved. \[member,
+       * unreserved\]
+       **/
       MemberRetired: AugmentedEvent<ApiType, [AccountId, Option<BalanceOf>]>;
+      /**
+       * A new announcement has been proposed. \[announcement\]
+       **/
       NewAnnouncement: AugmentedEvent<ApiType, [Cid]>;
+      /**
+       * A new rule has been set. \[rule\]
+       **/
       NewRule: AugmentedEvent<ApiType, [Cid]>;
       /**
        * Generic event
@@ -250,8 +287,8 @@ declare module '@polkadot/api/types/events' {
       /**
        * A code with the specified hash was removed.
        * \[code_hash\]
-       *
-       * This happens when the last contract that uses this code hash was removed or evicted.
+       * 
+       * This happens when the last contract that uses this code hash was removed.
        **/
       CodeRemoved: AugmentedEvent<ApiType, [Hash]>;
       /**
@@ -261,56 +298,40 @@ declare module '@polkadot/api/types/events' {
       /**
        * A custom event emitted by the contract.
        * \[contract, data\]
-       *
+       * 
        * # Params
-       *
+       * 
        * - `contract`: The contract that emitted the event.
-       * - `data`: Data supplied by the contract. Metadata generated during contract
-       * compilation is needed to decode it.
+       * - `data`: Data supplied by the contract. Metadata generated during contract compilation
+       * is needed to decode it.
        **/
       ContractEmitted: AugmentedEvent<ApiType, [AccountId, Bytes]>;
-      /**
-       * Contract has been evicted and is now in tombstone state. \[contract\]
-       **/
-      Evicted: AugmentedEvent<ApiType, [AccountId]>;
       /**
        * Contract deployed by address at the specified address. \[deployer, contract\]
        **/
       Instantiated: AugmentedEvent<ApiType, [AccountId, AccountId]>;
       /**
-       * Restoration of a contract has been successful.
-       * \[restorer, dest, code_hash, rent_allowance\]
-       *
-       * # Params
-       *
-       * - `restorer`: Account ID of the restoring contract.
-       * - `dest`: Account ID of the restored contract.
-       * - `code_hash`: Code hash of the restored contract.
-       * - `rent_allowance`: Rent allowance of the restored contract.
-       **/
-      Restored: AugmentedEvent<ApiType, [AccountId, AccountId, Hash, Balance]>;
-      /**
        * Triggered when the current schedule is updated.
        * \[version\]
-       *
+       * 
        * # Params
-       *
+       * 
        * - `version`: The version of the newly set schedule.
        **/
       ScheduleUpdated: AugmentedEvent<ApiType, [u32]>;
       /**
-       * Contract has been terminated without leaving a tombstone.
+       * Contract has been removed.
        * \[contract, beneficiary\]
-       *
+       * 
        * # Params
-       *
+       * 
        * - `contract`: The contract that was terminated.
        * - `beneficiary`: The account that received the contracts remaining balance.
-       *
+       * 
        * # Note
-       *
-       * The only way for a contract to be removed without a tombstone and emitting
-       * this event is by calling `seal_terminate`.
+       * 
+       * The only way for a contract to be removed and emitting this event is by calling
+       * `seal_terminate`.
        **/
       Terminated: AugmentedEvent<ApiType, [AccountId, AccountId]>;
       /**
@@ -375,9 +396,9 @@ declare module '@polkadot/api/types/events' {
        **/
       Delegated: AugmentedEvent<ApiType, [AccountId, AccountId]>;
       /**
-       * A proposal has been enacted. \[ref_index, is_ok\]
+       * A proposal has been enacted. \[ref_index, result\]
        **/
-      Executed: AugmentedEvent<ApiType, [ReferendumIndex, bool]>;
+      Executed: AugmentedEvent<ApiType, [ReferendumIndex, DispatchResult]>;
       /**
        * An external proposal has been tabled.
        **/
@@ -423,17 +444,14 @@ declare module '@polkadot/api/types/events' {
        **/
       Started: AugmentedEvent<ApiType, [ReferendumIndex, VoteThreshold]>;
       /**
-       * A public proposal has been tabled for referendum vote. \[proposal_index, deposit, depositors\]
+       * A public proposal has been tabled for referendum vote. \[proposal_index, deposit,
+       * depositors\]
        **/
       Tabled: AugmentedEvent<ApiType, [PropIndex, Balance, Vec<AccountId>]>;
       /**
        * An \[account\] has cancelled a previous delegation operation.
        **/
       Undelegated: AugmentedEvent<ApiType, [AccountId]>;
-      /**
-       * An \[account\] has been unlocked successfully.
-       **/
-      Unlocked: AugmentedEvent<ApiType, [AccountId]>;
       /**
        * An external proposal has been vetoed. \[who, proposal_hash, until\]
        **/
@@ -452,7 +470,7 @@ declare module '@polkadot/api/types/events' {
       /**
        * An account has been rewarded for their signed submission being finalized.
        **/
-      Rewarded: AugmentedEvent<ApiType, [AccountId]>;
+      Rewarded: AugmentedEvent<ApiType, [AccountId, Balance]>;
       /**
        * The signed phase of the given round has started.
        **/
@@ -460,14 +478,16 @@ declare module '@polkadot/api/types/events' {
       /**
        * An account has been slashed for submitting an invalid signed submission.
        **/
-      Slashed: AugmentedEvent<ApiType, [AccountId]>;
+      Slashed: AugmentedEvent<ApiType, [AccountId, Balance]>;
       /**
        * A solution was stored with the given compute.
-       *
+       * 
        * If the solution is signed, this means that it hasn't yet been processed. If the
        * solution is unsigned, this means that it has also been processed.
+       * 
+       * The `bool` is `true` when a previous solution was ejected to make room for this one.
        **/
-      SolutionStored: AugmentedEvent<ApiType, [ElectionCompute]>;
+      SolutionStored: AugmentedEvent<ApiType, [ElectionCompute, bool]>;
       /**
        * The unsigned phase of the given round has started.
        **/
@@ -481,7 +501,7 @@ declare module '@polkadot/api/types/events' {
       /**
        * A \[candidate\] was slashed by \[amount\] due to failing to obtain a seat as member or
        * runner-up.
-       *
+       * 
        * Note that old members and runners-up are also candidates.
        **/
       CandidateSlashed: AugmentedEvent<ApiType, [AccountId, Balance]>;
@@ -712,9 +732,14 @@ declare module '@polkadot/api/types/events' {
       Announced: AugmentedEvent<ApiType, [AccountId, AccountId, Hash]>;
       /**
        * Anonymous account has been created by new proxy with given
-       * disambiguation index and proxy type. \[anonymous, who, proxy_type, disambiguation_index\]
+       * disambiguation index and proxy type. \[anonymous, who, proxy_type,
+       * disambiguation_index\]
        **/
       AnonymousCreated: AugmentedEvent<ApiType, [AccountId, AccountId, ProxyType, u16]>;
+      /**
+       * A proxy was added. \[delegator, delegatee, proxy_type, delay\]
+       **/
+      ProxyAdded: AugmentedEvent<ApiType, [AccountId, AccountId, ProxyType, BlockNumber]>;
       /**
        * A proxy was executed correctly, with the given \[result\].
        **/
@@ -778,8 +803,8 @@ declare module '@polkadot/api/types/events' {
     };
     session: {
       /**
-       * New session has happened. Note that the argument is the \[session_index\], not the block
-       * number as the type might suggest.
+       * New session has happened. Note that the argument is the \[session_index\], not the
+       * block number as the type might suggest.
        **/
       NewSession: AugmentedEvent<ApiType, [SessionIndex]>;
       /**
@@ -863,17 +888,22 @@ declare module '@polkadot/api/types/events' {
     staking: {
       /**
        * An account has bonded this amount. \[stash, amount\]
-       *
+       * 
        * NOTE: This event is only emitted when funds are bonded via a dispatchable. Notably,
        * it will not be emitted for staking rewards when they are added to stake.
        **/
       Bonded: AugmentedEvent<ApiType, [AccountId, Balance]>;
       /**
+       * An account has stopped participating as either a validator or nominator.
+       * \[stash\]
+       **/
+      Chilled: AugmentedEvent<ApiType, [AccountId]>;
+      /**
        * The era payout has been set; the first balance is the validator-payout; the second is
        * the remainder from the maximum amount of reward.
        * \[era_index, validator_payout, remainder\]
        **/
-      EraPayout: AugmentedEvent<ApiType, [EraIndex, Balance, Balance]>;
+      EraPaid: AugmentedEvent<ApiType, [EraIndex, Balance, Balance]>;
       /**
        * A nominator has been kicked from a validator. \[nominator, stash\]
        **/
@@ -884,18 +914,22 @@ declare module '@polkadot/api/types/events' {
        **/
       OldSlashingReportDiscarded: AugmentedEvent<ApiType, [SessionIndex]>;
       /**
-       * The staker has been rewarded by this amount. \[stash, amount\]
+       * The stakers' rewards are getting paid. \[era_index, validator_stash\]
        **/
-      Reward: AugmentedEvent<ApiType, [AccountId, Balance]>;
+      PayoutStarted: AugmentedEvent<ApiType, [EraIndex, AccountId]>;
+      /**
+       * The nominator has been rewarded by this amount. \[stash, amount\]
+       **/
+      Rewarded: AugmentedEvent<ApiType, [AccountId, Balance]>;
       /**
        * One validator (and its nominators) has been slashed by the given amount.
        * \[validator, amount\]
        **/
-      Slash: AugmentedEvent<ApiType, [AccountId, Balance]>;
+      Slashed: AugmentedEvent<ApiType, [AccountId, Balance]>;
       /**
        * A new set of stakers was elected.
        **/
-      StakingElection: AugmentedEvent<ApiType, []>;
+      StakersElected: AugmentedEvent<ApiType, []>;
       /**
        * The election failed. No new era is planned.
        **/
@@ -1179,7 +1213,7 @@ declare module '@polkadot/api/types/events' {
        **/
       Frozen: AugmentedEvent<ApiType, [ClassId, InstanceId]>;
       /**
-       * An asset `instace` was issued. \[ class, instance, owner \]
+       * An asset `instance` was issued. \[ class, instance, owner \]
        **/
       Issued: AugmentedEvent<ApiType, [ClassId, InstanceId, AccountId]>;
       /**
@@ -1208,7 +1242,7 @@ declare module '@polkadot/api/types/events' {
        **/
       Thawed: AugmentedEvent<ApiType, [ClassId, InstanceId]>;
       /**
-       * An asset `instace` was transferred. \[ class, instance, from, to \]
+       * An asset `instance` was transferred. \[ class, instance, from, to \]
        **/
       Transferred: AugmentedEvent<ApiType, [ClassId, InstanceId, AccountId, AccountId]>;
       /**
@@ -1227,18 +1261,22 @@ declare module '@polkadot/api/types/events' {
        **/
       BatchInterrupted: AugmentedEvent<ApiType, [u32, DispatchError]>;
       /**
+       * A single item within a Batch of dispatches has completed with no error.
+       **/
+      ItemCompleted: AugmentedEvent<ApiType, []>;
+      /**
        * Generic event
        **/
       [key: string]: AugmentedEvent<ApiType>;
     };
     vesting: {
       /**
-       * An \[account\] has become fully vested. No further vesting can happen.
+       * An \[account\] has become fully vested.
        **/
       VestingCompleted: AugmentedEvent<ApiType, [AccountId]>;
       /**
-       * The amount vested has been updated. This could indicate more funds are available. The
-       * balance given is the amount which is left unvested (and thus locked).
+       * The amount vested has been updated. This could indicate a change in funds available.
+       * The balance given is the amount which is left unvested (and thus locked).
        * \[account, unvested\]
        **/
       VestingUpdated: AugmentedEvent<ApiType, [AccountId, Balance]>;

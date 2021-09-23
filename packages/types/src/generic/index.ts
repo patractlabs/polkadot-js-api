@@ -13,4 +13,5 @@ export { GenericEvent, GenericEventData } from './Event';
 export { GenericLookupSource } from './LookupSource';
 export { GenericCidMultihash } from './CidMultihash';
 export { GenericMultiAddress, GenericMultiAddress as GenericAddress } from './MultiAddress';
+export { GenericPortableRegistry } from './PortableRegistry';
 export { GenericVote } from './Vote';

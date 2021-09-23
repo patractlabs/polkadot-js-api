@@ -5,10 +5,10 @@ import type { VoteThreshold } from '../interfaces/elections';
 import type { BlockNumber } from '../interfaces/runtime';
 import type { CodecTo } from '../types';
 
-import { Metadata } from '@polkadot/metadata';
-import rpcMetadata from '@polkadot/metadata/static';
+import rpcMetadata from '@polkadot/types-support/metadata/static-substrate';
 
 import { TypeRegistry } from '../create';
+import { Metadata } from '../metadata';
 import { Text, U32, u128 as U128 } from '../primitive';
 import { Tuple } from '.';
 
@@ -51,7 +51,7 @@ describe('Tuple', (): void => {
 
     it('decodes properly from complex types', (): void => {
       const INPUT = '0xcc0200000000';
-      const test = registry.createType('(u32, [u32; 0], u16)' as 'u32', INPUT);
+      const test = registry.createType('(u32, [u32; 0], u16)', INPUT);
 
       expect(test.encodedLength).toEqual(4 + 0 + 2);
       expect(test.toHex()).toEqual(INPUT);

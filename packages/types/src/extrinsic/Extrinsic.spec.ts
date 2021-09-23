@@ -1,10 +1,10 @@
 // Copyright 2017-2021 @polkadot/types authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Metadata } from '@polkadot/metadata';
-import rpcMetadata from '@polkadot/metadata/static';
+import rpcMetadata from '@polkadot/types-support/metadata/static-substrate';
 
 import { TypeRegistry } from '../create';
+import { Metadata } from '../metadata';
 import { GenericExtrinsic as Extrinsic } from '.';
 
 const registry = new TypeRegistry();
@@ -39,7 +39,7 @@ describe('Extrinsic', (): void => {
       expect(extrinsic.tip.toHuman()).toEqual('30.0000 mUnit');
       expect(extrinsic.callIndex).toEqual(new Uint8Array([6, 0]));
       expect(extrinsic.args[0].toHex()).toEqual('0x00495e1e506f266418af07fa0c5c108dd436f2faa59fe7d9e54403779f5bbd7718');
-      expect(extrinsic.args[1].toHuman()).toEqual('104.5609 Unit');
+      expect(extrinsic.args[1].toHuman()).toEqual('104,560,923,320,000'); // ('104.5609 Unit');
     });
   });
 });

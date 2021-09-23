@@ -1,9 +1,9 @@
 // Copyright 2017-2021 @polkadot/types authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AnyNumber, AnyString, AnyU8a, Codec, Constructor, InterfaceTypes, Registry } from '../types';
+import type { AnyNumber, AnyString, AnyU8a, Codec, Constructor, ITuple, Registry } from '../types';
 
-import { isHex, isU8a, stringify, u8aConcat, u8aToU8a } from '@polkadot/util';
+import { isFunction, isHex, isString, isU8a, stringify, u8aConcat, u8aToU8a } from '@polkadot/util';
 
 import { AbstractArray } from './AbstractArray';
 import { decodeU8a, mapToTypeMap, typeToConstructor } from './utils';
@@ -14,8 +14,10 @@ type TupleConstructors = Constructor[] | {
   [index: string]: Constructor;
 };
 
-type TupleTypes = (Constructor | keyof InterfaceTypes)[] | {
-  [index: string]: Constructor | keyof InterfaceTypes;
+type TupleType = (Constructor | string);
+
+type TupleTypes = TupleType[] | {
+  [index: string]: Constructor | string;
 };
 
 /** @internal */
@@ -49,20 +51,22 @@ function decodeTuple (registry: Registry, _Types: TupleConstructors, value?: Any
  * A Tuple defines an anonymous fixed-length array, where each element has its
  * own type. It extends the base JS `Array` object.
  */
-export class Tuple extends AbstractArray<Codec> {
+export class Tuple extends AbstractArray<Codec> implements ITuple<Codec[]> {
   private _Types: TupleConstructors;
 
-  constructor (registry: Registry, Types: TupleTypes, value?: AnyTuple) {
+  constructor (registry: Registry, Types: TupleTypes | TupleType, value?: AnyTuple) {
     const Clazzes = Array.isArray(Types)
-      ? Types.map((type): Constructor => typeToConstructor(registry, type))
-      : mapToTypeMap(registry, Types);
+      ? Types.map((t) => typeToConstructor(registry, t))
+      : isFunction(Types) || isString(Types)
+        ? [typeToConstructor(registry, Types)]
+        : mapToTypeMap(registry, Types);
 
-    super(registry, ...decodeTuple(registry, Clazzes, value));
+    super(registry, decodeTuple(registry, Clazzes, value));
 
     this._Types = Clazzes;
   }
 
-  public static with (Types: TupleTypes): Constructor<Tuple> {
+  public static with (Types: TupleTypes | TupleType): Constructor<Tuple> {
     return class extends Tuple {
       constructor (registry: Registry, value?: AnyTuple) {
         super(registry, Types, value);
@@ -73,7 +77,7 @@ export class Tuple extends AbstractArray<Codec> {
   /**
    * @description The length of the value when encoded as a Uint8Array
    */
-  public get encodedLength (): number {
+  public override get encodedLength (): number {
     return this.reduce((total, entry) => total + entry.encodedLength, 0);
   }
 
@@ -82,7 +86,7 @@ export class Tuple extends AbstractArray<Codec> {
    */
   public get Types (): string[] {
     return Array.isArray(this._Types)
-      ? this._Types.map((Type): string => new Type(this.registry).toRawType())
+      ? this._Types.map((Type) => new Type(this.registry).toRawType())
       : Object.keys(this._Types);
   }
 
@@ -104,7 +108,7 @@ export class Tuple extends AbstractArray<Codec> {
   /**
    * @description Returns the string representation of the value
    */
-  public toString (): string {
+  public override toString (): string {
     // Overwrite the default toString representation of Array.
     return stringify(this.toJSON());
   }
@@ -113,7 +117,7 @@ export class Tuple extends AbstractArray<Codec> {
    * @description Encodes the value as a Uint8Array as per the SCALE specifications
    * @param isBare true when the value has none of the type-specific prefixes (internal)
    */
-  public toU8a (isBare?: boolean): Uint8Array {
+  public override toU8a (isBare?: boolean): Uint8Array {
     return u8aConcat(
       ...this.map((entry): Uint8Array =>
         entry.toU8a(isBare)

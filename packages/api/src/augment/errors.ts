@@ -5,77 +5,6 @@ import type { ApiTypes } from '@polkadot/api/types';
 
 declare module '@polkadot/api/types/errors' {
   export interface AugmentedErrors<ApiType> {
-    alliance: {
-      AlreadyCandidate: AugmentedError<ApiType>;
-      AlreadyElevated: AugmentedError<ApiType>;
-      AlreadyInBlacklist: AugmentedError<ApiType>;
-      AlreadyMember: AugmentedError<ApiType>;
-      FoundersAlreadyInitialized: AugmentedError<ApiType>;
-      InsufficientCandidateFunds: AugmentedError<ApiType>;
-      KickingMember: AugmentedError<ApiType>;
-      MissingProposalHash: AugmentedError<ApiType>;
-      NoDisplayName: AugmentedError<ApiType>;
-      NoJudgedIdentity: AugmentedError<ApiType>;
-      NotAlly: AugmentedError<ApiType>;
-      NotCandidate: AugmentedError<ApiType>;
-      NotFounder: AugmentedError<ApiType>;
-      NotInBlacklist: AugmentedError<ApiType>;
-      NotKickingMember: AugmentedError<ApiType>;
-      NotMember: AugmentedError<ApiType>;
-      NotVetoableProposal: AugmentedError<ApiType>;
-      NotVotableMember: AugmentedError<ApiType>;
-      NoWebsite: AugmentedError<ApiType>;
-      /**
-       * Generic error
-       **/
-      [key: string]: AugmentedError<ApiType>;
-    };
-    allianceMotion: {
-      /**
-       * Members are already initialized!
-       **/
-      AlreadyInitialized: AugmentedError<ApiType>;
-      /**
-       * Duplicate proposals not allowed
-       **/
-      DuplicateProposal: AugmentedError<ApiType>;
-      /**
-       * Duplicate vote ignored
-       **/
-      DuplicateVote: AugmentedError<ApiType>;
-      /**
-       * Account is not a member
-       **/
-      NotMember: AugmentedError<ApiType>;
-      /**
-       * Proposal must exist
-       **/
-      ProposalMissing: AugmentedError<ApiType>;
-      /**
-       * The close call was made too early, before the end of the voting.
-       **/
-      TooEarly: AugmentedError<ApiType>;
-      /**
-       * There can only be a maximum of `MaxProposals` active proposals.
-       **/
-      TooManyProposals: AugmentedError<ApiType>;
-      /**
-       * Mismatched index
-       **/
-      WrongIndex: AugmentedError<ApiType>;
-      /**
-       * The given length bound for the proposal was too low.
-       **/
-      WrongProposalLength: AugmentedError<ApiType>;
-      /**
-       * The given weight bound for the proposal was too low.
-       **/
-      WrongProposalWeight: AugmentedError<ApiType>;
-      /**
-       * Generic error
-       **/
-      [key: string]: AugmentedError<ApiType>;
-    };
     assets: {
       /**
        * Invalid metadata given.
@@ -110,7 +39,8 @@ declare module '@polkadot/api/types/errors' {
        **/
       NoPermission: AugmentedError<ApiType>;
       /**
-       * No provider reference exists to allow a non-zero balance of a non-self-sufficient asset.
+       * No provider reference exists to allow a non-zero balance of a non-self-sufficient
+       * asset.
        **/
       NoProvider: AugmentedError<ApiType>;
       /**
@@ -266,9 +196,8 @@ declare module '@polkadot/api/types/errors' {
     contracts: {
       /**
        * Performing the requested transfer would have brought the contract below
-       * the subsistence threshold. No transfer is allowed to do this in order to allow
-       * for a tombstone to be created. Use `seal_terminate` to remove a contract without
-       * leaving a tombstone behind.
+       * the subsistence threshold. No transfer is allowed to do this. Use `seal_terminate`
+       * to recover a deposit.
        **/
       BelowSubsistenceThreshold: AugmentedError<ApiType>;
       /**
@@ -280,20 +209,6 @@ declare module '@polkadot/api/types/errors' {
        * current schedule.
        **/
       CodeTooLarge: AugmentedError<ApiType>;
-      /**
-       * A tombstone exist at the specified address.
-       *
-       * Tombstone cannot be called. Anyone can use `seal_restore_to` in order to revive
-       * the contract, though.
-       **/
-      ContractIsTombstone: AugmentedError<ApiType>;
-      /**
-       * A contract could not be evicted because it has enough balance to pay rent.
-       *
-       * This can be returned from [`Pallet::claim_surcharge`] because the target
-       * contract has enough balance to pay for its rent.
-       **/
-      ContractNotEvictable: AugmentedError<ApiType>;
       /**
        * No contract was found at the specified address.
        **/
@@ -312,8 +227,8 @@ declare module '@polkadot/api/types/errors' {
       DecodingFailed: AugmentedError<ApiType>;
       /**
        * Removal of a contract failed because the deletion queue is full.
-       *
-       * This can happen when either calling [`Pallet::claim_surcharge`] or `seal_terminate`.
+       * 
+       * This can happen when calling `seal_terminate`.
        * The queue is filled by deleting contracts and emptied by a fixed amount each block.
        * Trying again during another block is the only way to resolve this issue.
        **/
@@ -331,29 +246,9 @@ declare module '@polkadot/api/types/errors' {
        **/
       InputForwarded: AugmentedError<ApiType>;
       /**
-       * An origin TrieId written in the current block.
-       **/
-      InvalidContractOrigin: AugmentedError<ApiType>;
-      /**
-       * Cannot restore to nonexisting or alive contract.
-       **/
-      InvalidDestinationContract: AugmentedError<ApiType>;
-      /**
        * A new schedule must have a greater version than the current one.
        **/
       InvalidScheduleVersion: AugmentedError<ApiType>;
-      /**
-       * Cannot restore from nonexisting or tombstone contract.
-       **/
-      InvalidSourceContract: AugmentedError<ApiType>;
-      /**
-       * An origin must be signed or inherent and auxiliary sender only provided on inherent.
-       **/
-      InvalidSurchargeClaim: AugmentedError<ApiType>;
-      /**
-       * Tombstones don't match.
-       **/
-      InvalidTombstone: AugmentedError<ApiType>;
       /**
        * Performing a call was denied because the calling depth reached the limit
        * of what is specified in the schedule.
@@ -391,30 +286,21 @@ declare module '@polkadot/api/types/errors' {
        **/
       ReentranceDenied: AugmentedError<ApiType>;
       /**
-       * The called contract does not have enough balance to pay for its storage.
-       *
-       * The contract ran out of balance and is therefore eligible for eviction into a
-       * tombstone. Anyone can evict the contract by submitting a `claim_surcharge`
-       * extrinsic. Alternatively, a plain balance transfer can be used in order to
-       * increase the contracts funds so that it can be called again.
-       **/
-      RentNotPaid: AugmentedError<ApiType>;
-      /**
        * A storage modification exhausted the 32bit type that holds the storage size.
-       *
+       * 
        * This can either happen when the accumulated storage in bytes is too large or
        * when number of storage items is too large.
        **/
       StorageExhausted: AugmentedError<ApiType>;
       /**
        * A contract self destructed in its constructor.
-       *
-       * This can be triggered by a call to `seal_terminate` or `seal_restore_to`.
+       * 
+       * This can be triggered by a call to `seal_terminate`.
        **/
       TerminatedInConstructor: AugmentedError<ApiType>;
       /**
        * Termination of a contract is not allowed while the contract is already
-       * on the call stack. Can be triggered by `seal_terminate` or `seal_restore_to.
+       * on the call stack. Can be triggered by `seal_terminate`.
        **/
       TerminatedWhileReentrant: AugmentedError<ApiType>;
       /**
@@ -496,10 +382,6 @@ declare module '@polkadot/api/types/errors' {
        **/
       AlreadyVetoed: AugmentedError<ApiType>;
       /**
-       * Unknown index
-       **/
-      BadIndex: AugmentedError<ApiType>;
-      /**
        * Preimage already noted
        **/
       DuplicatePreimage: AugmentedError<ApiType>;
@@ -524,10 +406,6 @@ declare module '@polkadot/api/types/errors' {
        **/
       InvalidHash: AugmentedError<ApiType>;
       /**
-       * The provided witness data is wrong.
-       **/
-      InvalidWitness: AugmentedError<ApiType>;
-      /**
        * Maximum number of votes reached.
        **/
       MaxVotesReached: AugmentedError<ApiType>;
@@ -548,25 +426,13 @@ declare module '@polkadot/api/types/errors' {
        **/
       NoProposal: AugmentedError<ApiType>;
       /**
-       * Not delegated
-       **/
-      NotDelegated: AugmentedError<ApiType>;
-      /**
        * The account is not currently delegating.
        **/
       NotDelegating: AugmentedError<ApiType>;
       /**
-       * The lock on the account to be unlocked has not yet expired.
-       **/
-      NotExpired: AugmentedError<ApiType>;
-      /**
        * Not imminent
        **/
       NotImminent: AugmentedError<ApiType>;
-      /**
-       * The target account does not have a lock.
-       **/
-      NotLocked: AugmentedError<ApiType>;
       /**
        * Next external proposal not simple majority
        **/
@@ -627,6 +493,14 @@ declare module '@polkadot/api/types/errors' {
        **/
       CallNotAllowed: AugmentedError<ApiType>;
       /**
+       * `Self::insert_submission` returned an invalid index.
+       **/
+      InvalidSubmissionIndex: AugmentedError<ApiType>;
+      /**
+       * Snapshot metadata should exist but didn't.
+       **/
+      MissingSnapshotMetadata: AugmentedError<ApiType>;
+      /**
        * OCW submitted solution for wrong round
        **/
       OcwCallWrongEra: AugmentedError<ApiType>;
@@ -642,6 +516,22 @@ declare module '@polkadot/api/types/errors' {
        * Wrong number of winners presented.
        **/
       PreDispatchWrongWinnerCount: AugmentedError<ApiType>;
+      /**
+       * The origin failed to pay the deposit.
+       **/
+      SignedCannotPayDeposit: AugmentedError<ApiType>;
+      /**
+       * Witness data to dispatchable is invalid.
+       **/
+      SignedInvalidWitness: AugmentedError<ApiType>;
+      /**
+       * The queue was full, and the solution was not better than any of the existing ones.
+       **/
+      SignedQueueFull: AugmentedError<ApiType>;
+      /**
+       * The signed submission consumes too much weight
+       **/
+      SignedTooMuchWeight: AugmentedError<ApiType>;
       /**
        * Generic error
        **/
@@ -727,8 +617,8 @@ declare module '@polkadot/api/types/errors' {
        **/
       AmountTooSmall: AugmentedError<ApiType>;
       /**
-       * The queue for the bid's duration is full and the amount bid is too low to get in through
-       * replacing an existing bid.
+       * The queue for the bid's duration is full and the amount bid is too low to get in
+       * through replacing an existing bid.
        **/
       BidTooLow: AugmentedError<ApiType>;
       /**
@@ -1318,8 +1208,8 @@ declare module '@polkadot/api/types/errors' {
        **/
       NoUnlockChunk: AugmentedError<ApiType>;
       /**
-       * There are too many nominators in the system. Governance needs to adjust the staking settings
-       * to keep things safe for the runtime.
+       * There are too many nominators in the system. Governance needs to adjust the staking
+       * settings to keep things safe for the runtime.
        **/
       TooManyNominators: AugmentedError<ApiType>;
       /**
@@ -1327,8 +1217,8 @@ declare module '@polkadot/api/types/errors' {
        **/
       TooManyTargets: AugmentedError<ApiType>;
       /**
-       * There are too many validators in the system. Governance needs to adjust the staking settings
-       * to keep things safe for the runtime.
+       * There are too many validators in the system. Governance needs to adjust the staking
+       * settings to keep things safe for the runtime.
        **/
       TooManyValidators: AugmentedError<ApiType>;
       /**
@@ -1349,7 +1239,7 @@ declare module '@polkadot/api/types/errors' {
     system: {
       /**
        * Failed to extract the runtime version from the new runtime.
-       *
+       * 
        * Either calling `Core_version` or decoding `RuntimeVersion` failed.
        **/
       FailedToExtractRuntimeVersion: AugmentedError<ApiType>;
@@ -1588,19 +1478,38 @@ declare module '@polkadot/api/types/errors' {
        **/
       [key: string]: AugmentedError<ApiType>;
     };
+    utility: {
+      /**
+       * Too many calls batched.
+       **/
+      TooManyCalls: AugmentedError<ApiType>;
+      /**
+       * Generic error
+       **/
+      [key: string]: AugmentedError<ApiType>;
+    };
     vesting: {
       /**
        * Amount being transferred is too low to create a vesting schedule.
        **/
       AmountLow: AugmentedError<ApiType>;
       /**
-       * An existing vesting schedule already exists for this account that cannot be clobbered.
+       * The account already has `MaxVestingSchedules` count of schedules and thus
+       * cannot add another one. Consider merging existing schedules in order to add another.
        **/
-      ExistingVestingSchedule: AugmentedError<ApiType>;
+      AtMaxVestingSchedules: AugmentedError<ApiType>;
+      /**
+       * Failed to create a new schedule because some parameter was invalid.
+       **/
+      InvalidScheduleParams: AugmentedError<ApiType>;
       /**
        * The account given is not vesting.
        **/
       NotVesting: AugmentedError<ApiType>;
+      /**
+       * An index was out of bounds of the vesting schedules.
+       **/
+      ScheduleIndexOutOfBounds: AugmentedError<ApiType>;
       /**
        * Generic error
        **/

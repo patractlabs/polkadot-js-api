@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { CodecHash, Hash } from '../interfaces/runtime';
-import type { AnyJson, Codec, Registry } from '../types';
+import type { AnyJson, Codec, IVec, Registry } from '../types';
 
 import { compactToU8a, u8aConcat, u8aToHex } from '@polkadot/util';
 
-import { compareArray } from './utils';
+import { compareArray } from './utils/compareArray';
 
 /**
  * @name AbstractArray
@@ -15,13 +15,17 @@ import { compareArray } from './utils';
  * specific encoding/decoding on top of the base type.
  * @noInheritDoc
  */
-export abstract class AbstractArray<T extends Codec> extends Array<T> implements Codec {
+export abstract class AbstractArray<T extends Codec> extends Array<T> implements IVec<T> {
   public readonly registry: Registry;
 
   public createdAtHash?: Hash;
 
-  protected constructor (registry: Registry, ...values: T[]) {
-    super(...values);
+  protected constructor (registry: Registry, values: T[]) {
+    super(values.length);
+
+    for (let i = 0; i < values.length; i++) {
+      this[i] = values[i];
+    }
 
     this.registry = registry;
   }
@@ -50,7 +54,7 @@ export abstract class AbstractArray<T extends Codec> extends Array<T> implements
   /**
    * @description The length of the value
    */
-  public get length (): number {
+  public override get length (): number {
     // only included here since we ignore inherited docs
     return super.length;
   }
@@ -102,7 +106,7 @@ export abstract class AbstractArray<T extends Codec> extends Array<T> implements
   /**
    * @description Returns the string representation of the value
    */
-  public toString (): string {
+  public override toString (): string {
     // Overwrite the default toString representation of Array.
     const data = this.map((entry): string =>
       entry.toString()
@@ -135,35 +139,35 @@ export abstract class AbstractArray<T extends Codec> extends Array<T> implements
   /**
    * @description Concatenates two arrays
    */
-  public concat (other: T[]): T[] {
+  public override concat (other: T[]): T[] {
     return this.toArray().concat(other instanceof AbstractArray ? other.toArray() : other);
   }
 
   /**
    * @description Filters the array with the callback
    */
-  public filter (callbackfn: (value: T, index: number, array: T[]) => boolean, thisArg?: unknown): T[] {
+  public override filter (callbackfn: (value: T, index: number, array: T[]) => boolean, thisArg?: unknown): T[] {
     return this.toArray().filter(callbackfn, thisArg);
   }
 
   /**
    * @description Maps the array with the callback
    */
-  public map<U> (callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: unknown): U[] {
+  public override map<U> (callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: unknown): U[] {
     return this.toArray().map(callbackfn, thisArg);
   }
 
   /**
    * @description Checks if the array includes a specific value
    */
-  public includes (check: unknown): boolean {
+  public override includes (check: unknown): boolean {
     return this.some((value: T) => value.eq(check));
   }
 
   /**
    * @description Returns a slice of an array
    */
-  public slice (start?: number, end?: number): T[] {
+  public override slice (start?: number, end?: number): T[] {
     return this.toArray().slice(start, end);
   }
 }

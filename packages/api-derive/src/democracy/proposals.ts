@@ -1,23 +1,23 @@
 // Copyright 2017-2021 @polkadot/api-derive authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { Observable } from 'rxjs';
 import type { ApiInterfaceRx } from '@polkadot/api/types';
 import type { Option, Vec } from '@polkadot/types';
 import type { AccountId, Balance, Hash, PropIndex } from '@polkadot/types/interfaces';
 import type { ITuple } from '@polkadot/types/types';
-import type { Observable } from '@polkadot/x-rxjs';
 import type { DeriveProposal, DeriveProposalImage } from '../types';
 
+import { combineLatest, map, of, switchMap } from 'rxjs';
+
 import { isFunction } from '@polkadot/util';
-import { combineLatest, of } from '@polkadot/x-rxjs';
-import { map, switchMap } from '@polkadot/x-rxjs/operators';
 
 import { memo } from '../util';
 
 type DepositorsNew = Option<ITuple<[Vec<AccountId>, Balance]>>;
 type DepositorsOld = Option<ITuple<[Balance, Vec<AccountId>]>>;
 type Depositors = DepositorsNew | DepositorsOld;
-type Proposals = Vec<ITuple<[PropIndex, Hash, AccountId]>>;
+type Proposals = ITuple<[PropIndex, Hash, AccountId]>[];
 type Result = [Proposals, (DeriveProposalImage | undefined)[], Depositors[]];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -54,13 +54,15 @@ export function proposals (instanceId: string, api: ApiInterfaceRx): () => Obser
     isFunction(api.query.democracy?.publicProps) && isFunction(api.query.democracy?.preimages)
       ? api.query.democracy.publicProps<Proposals>().pipe(
         switchMap((proposals) =>
-          combineLatest([
-            of(proposals),
-            api.derive.democracy.preimages(
-              proposals.map(([, hash]): Hash => hash)),
-            api.query.democracy.depositOf.multi<Depositors>(
-              proposals.map(([index]): PropIndex => index))
-          ])
+          proposals.length
+            ? combineLatest([
+              of(proposals),
+              api.derive.democracy.preimages(
+                proposals.map(([, hash]): Hash => hash)),
+              api.query.democracy.depositOf.multi<Depositors>(
+                proposals.map(([index]): PropIndex => index))
+            ])
+            : of<Result>([[], [], []])
         ),
         map(parse)
       )

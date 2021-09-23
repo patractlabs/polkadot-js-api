@@ -1,15 +1,13 @@
-// Copyright 2017-2021 @polkadot/metadata authors & contributors
+// Copyright 2017-2021 @polkadot/types authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { FunctionArgumentMetadataLatest, FunctionMetadataLatest } from '../interfaces/metadata';
-import type { AnyJson, AnyTuple, AnyU8a, ArgsDef, CallBase, CallFunction, IMethod, Registry } from '../types';
+import type { FunctionMetadataLatest } from '../interfaces/metadata';
+import type { AnyJson, AnyTuple, AnyU8a, ArgsDef, CallBase, CallFunction, IMethod, InterfaceTypes, Registry } from '../types';
 
 import { isHex, isObject, isU8a, u8aToU8a } from '@polkadot/util';
 
 import { Struct } from '../codec/Struct';
 import { U8aFixed } from '../codec/U8aFixed';
-import { getTypeClass } from '../create/createClass';
-import { getTypeDef } from '../create/getTypeDef';
 
 interface DecodeMethodInput {
   args: unknown;
@@ -30,11 +28,8 @@ interface DecodedMethod extends DecodeMethodInput {
  * @internal
  */
 function getArgsDef (registry: Registry, meta: FunctionMetadataLatest): ArgsDef {
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return GenericCall.filterOrigin(meta).reduce((result, { name, type }): ArgsDef => {
-    const Type = getTypeClass(registry, getTypeDef(type));
-
-    result[name.toString()] = Type;
+  return meta.fields.reduce((result, { name, type }, index): ArgsDef => {
+    result[name.unwrapOr(`param${index}`).toString()] = registry.createLookupType(type) as keyof InterfaceTypes;
 
     return result;
   }, {} as ArgsDef);
@@ -93,7 +88,7 @@ function decodeCallViaU8a (registry: Registry, value: Uint8Array, _meta?: Functi
  */
 function decodeCall (registry: Registry, value: unknown | DecodedMethod | Uint8Array | string = new Uint8Array(), _meta?: FunctionMetadataLatest): DecodedMethod {
   if (isHex(value) || isU8a(value)) {
-    return decodeCallViaU8a(registry, u8aToU8a(value as string), _meta);
+    return decodeCallViaU8a(registry, u8aToU8a(value), _meta);
   } else if (isObject(value) && value.callIndex && value.args) {
     return decodeCallViaObject(registry, value as DecodedMethod, _meta);
   }
@@ -144,16 +139,6 @@ export class GenericCall<A extends AnyTuple = AnyTuple> extends Struct implement
     }
 
     this._meta = decoded.meta;
-  }
-
-  // If the extrinsic function has an argument of type `Origin`, we ignore it
-  public static filterOrigin (meta?: FunctionMetadataLatest): FunctionArgumentMetadataLatest[] {
-    // FIXME should be `arg.type !== Origin`, but doesn't work...
-    return meta
-      ? meta.args.filter(({ type }): boolean =>
-        type.toString() !== 'Origin'
-      )
-      : [];
   }
 
   /**
@@ -216,7 +201,7 @@ export class GenericCall<A extends AnyTuple = AnyTuple> extends Struct implement
   /**
    * @description Converts the Object to to a human-friendly JSON, with additional fields, expansion and formatting of information
    */
-  public toHuman (isExpanded?: boolean): Record<string, AnyJson> {
+  public override toHuman (isExpanded?: boolean): Record<string, AnyJson> {
     let call: CallFunction | undefined;
 
     try {
@@ -235,7 +220,7 @@ export class GenericCall<A extends AnyTuple = AnyTuple> extends Struct implement
       method: call?.method,
       section: call?.section,
       ...(isExpanded && call
-        ? { documentation: call.meta.documentation.map((d) => d.toString()) }
+        ? { docs: call.meta.docs.map((d) => d.toString()) }
         : {}
       )
     };
@@ -244,7 +229,7 @@ export class GenericCall<A extends AnyTuple = AnyTuple> extends Struct implement
   /**
    * @description Returns the base runtime type name for this instance
    */
-  public toRawType (): string {
+  public override toRawType (): string {
     return 'Call';
   }
 }

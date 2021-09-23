@@ -1,15 +1,15 @@
 // Copyright 2017-2021 @polkadot/api-derive authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { Observable } from 'rxjs';
 import type { ApiInterfaceRx, QueryableStorageMultiArg } from '@polkadot/api/types';
 import type { Option, Vec } from '@polkadot/types';
 import type { AccountId, AccountIndex, Address, Balance, BalanceLock, BalanceLockTo212, BlockNumber, VestingInfo, VestingSchedule } from '@polkadot/types/interfaces';
-import type { Observable } from '@polkadot/x-rxjs';
 import type { DeriveBalancesAccount, DeriveBalancesAccountData, DeriveBalancesAll, DeriveBalancesAllAccountData } from '../types';
 
+import { combineLatest, map, of, switchMap } from 'rxjs';
+
 import { BN, bnMax, isFunction } from '@polkadot/util';
-import { combineLatest, of } from '@polkadot/x-rxjs';
-import { map, switchMap } from '@polkadot/x-rxjs/operators';
 
 import { memo } from '../util';
 
@@ -73,7 +73,8 @@ function calcBalances (api: ApiInterfaceRx, [data, bestNumber, [vesting, allLock
   // Calculate the vesting balances,
   //  - offset = balance locked at startingBlock
   //  - perBlock is the unlock amount
-  const { locked: vestingTotal, perBlock, startingBlock } = vesting || api.registry.createType('VestingInfo');
+  const emptyVest = api.registry.createType('VestingInfo');
+  const { locked: vestingTotal, perBlock, startingBlock } = vesting || emptyVest;
   const isStarted = bestNumber.gt(startingBlock);
   const vestedNow = isStarted ? perBlock.mul(bestNumber.sub(startingBlock)) : new BN(0);
   const vestedBalance = vestedNow.gt(vestingTotal) ? vestingTotal : api.registry.createType('Balance', vestedNow);
@@ -117,33 +118,29 @@ const isNonNullable = <T>(nullable: T): nullable is NonNullable<T> => !!nullable
 
 // current (balances, vesting)
 function queryCurrent (api: ApiInterfaceRx, accountId: AccountId, balanceInstances: string[] = ['balances']): Observable<ResultBalance> {
-  const lockCalls = balanceInstances.map(
-    (m): ApiInterfaceRx['query']['balances']['locks'] | undefined =>
-      (api.derive as DeriveCustomLocks)[m]?.customLocks || api.query[m as 'balances']?.locks
+  const calls = balanceInstances.map((m): ApiInterfaceRx['query']['balances']['locks'] | undefined =>
+    (api.derive as DeriveCustomLocks)[m]?.customLocks || api.query[m as 'balances']?.locks
   );
-
-  const lockEmpty = lockCalls.map((c) => !c);
-  const lockQueries = lockCalls.filter(isNonNullable).map((c): QueryableStorageMultiArg<'rxjs'> => [c, accountId]);
+  const lockEmpty = calls.map((c) => !c);
+  const queries = calls.filter(isNonNullable).map((c): QueryableStorageMultiArg<'rxjs'> => [c, accountId]);
 
   return (
     api.query.vesting?.vesting
-      ? api.queryMulti<[Option<VestingInfo>, ...BalanceLocks]>([
-        [api.query.vesting.vesting, accountId],
-        ...lockQueries
-      ])
+      ? api.queryMulti<[Option<VestingInfo>, ...BalanceLocks]>([[api.query.vesting.vesting, accountId], ...queries])
       // TODO We need to check module instances here as well, not only the balances module
-      : lockQueries.length
-        ? api.queryMulti<[...(Vec<BalanceLock>)[]]>(lockQueries).pipe(
-          map((locks): [Option<VestingInfo>, ...BalanceLocks] =>
-            [api.registry.createType('Option<VestingInfo>'), ...locks]
-          )
+      : queries.length
+        ? api.queryMulti<[...(Vec<BalanceLock>)[]]>(queries).pipe(
+          map((r): [Option<VestingInfo>, ...BalanceLocks] => [api.registry.createType('Option<VestingInfo>'), ...r])
         )
         : of([api.registry.createType('Option<VestingInfo>')] as [Option<VestingInfo>])
   ).pipe(
-    map(([optVesting, ...locks]): ResultBalance => {
+    map(([opt, ...locks]): ResultBalance => {
       let offset = -1;
 
-      return [optVesting.unwrapOr(null), lockEmpty.map((e) => e ? api.registry.createType('Vec<BalanceLock>') : locks[++offset])];
+      return [
+        opt.unwrapOr(null),
+        lockEmpty.map((e) => e ? api.registry.createType('Vec<BalanceLock>') : locks[++offset])
+      ];
     })
   );
 }

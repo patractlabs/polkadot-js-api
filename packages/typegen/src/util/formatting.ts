@@ -1,7 +1,10 @@
 // Copyright 2017-2021 @polkadot/typegen authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import type { TypeDef } from '@polkadot/types/create/types';
+import type { Registry } from '@polkadot/types/types';
 
 import Handlebars from 'handlebars';
 
@@ -36,15 +39,12 @@ Handlebars.registerHelper({
     const { imports, types } = this as unknown as This;
     const defs = [
       {
-        file: '@polkadot/metadata',
-        types: Object.keys(imports.metadataTypes)
-      },
-      {
         file: '@polkadot/types',
         types: [
           ...Object.keys(imports.codecTypes).filter((name) => !NO_CODEC.includes(name)),
           ...Object.keys(imports.extrinsicTypes),
           ...Object.keys(imports.genericTypes),
+          ...Object.keys(imports.metadataTypes),
           ...Object.keys(imports.primitiveTypes)
         ]
       },
@@ -55,7 +55,7 @@ Handlebars.registerHelper({
       ...types
     ];
 
-    return defs.reduce((result, { file, types }): string => {
+    return [...defs].sort((a, b) => a.file.localeCompare(b.file)).reduce((result, { file, types }): string => {
       return types.length
         ? `${result}import type { ${types.sort().join(', ')} } from '${file}';\n`
         : result;
@@ -71,9 +71,9 @@ Handlebars.registerHelper({
 
 // helper to generate a `export interface <Name> extends <Base> {<Body>}
 /** @internal */
-export function exportInterface (name = '', base: string, body = ''): string {
+export function exportInterface (lookupIndex = -1, name = '', base: string, body = ''): string {
   // * @description extends [[${base}]]
-  const doc = `/** @name ${name} */\n`;
+  const doc = `/** @name ${name}${lookupIndex !== -1 ? ` (${lookupIndex})` : ''} */\n`;
 
   return `${doc}export interface ${name} extends ${base} {${body.length ? '\n' : ''}${body}}`;
 }
@@ -82,96 +82,153 @@ export function exportInterface (name = '', base: string, body = ''): string {
 // but since we don't want type alias (TS doesn't preserve names) we use
 // interface here.
 /** @internal */
-export function exportType (name = '', base: string): string {
-  return exportInterface(name, base);
+export function exportType (lookupIndex = -1, name = '', base: string): string {
+  return exportInterface(lookupIndex, name, base);
 }
 
-/**
- * Given the inner `K` & `V`, return a `BTreeMap<K, V>`  string
- */
-/** @internal */
-function formatBTreeMap (key: string, val: string): string {
-  return `BTreeMap<${key}, ${val}>`;
-}
+const formatters: Record<TypeDefInfo, (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => string> = {
+  [TypeDefInfo.Compact]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const sub = typeDef.sub as TypeDef;
 
-/**
- * Given the inner `V`, return a `BTreeSet<V>`  string
- */
-/** @internal */
-function formatBTreeSet (val: string): string {
-  return `BTreeSet<${val}>`;
-}
+    setImports(definitions, imports, ['Compact', sub.lookupName]);
 
-/**
- * Given the inner `T`, return a `Compact<T>` string
- */
-/** @internal */
-function formatCompact (inner: string): string {
-  return paramsNotation('Compact', inner);
-}
+    return paramsNotation('Compact', sub.lookupName || formatType(registry, definitions, sub.type, imports, withShortcut));
+  },
+  [TypeDefInfo.DoNotConstruct]: (registry: Registry, { lookupName }: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    setImports(definitions, imports, ['DoNotConstruct']);
 
-/**
- * Simple return
- */
-/** @internal */
-function formatDoNoConstruct (): string {
-  return 'DoNotConstruct';
-}
+    return 'DoNotConstruct';
+  },
+  [TypeDefInfo.Enum]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    if (typeDef.lookupName) {
+      return typeDef.lookupName;
+    }
 
-/**
- * Given the inner `K` & `V`, return a `BTreeMap<K, V>`  string
- */
-/** @internal */
-function formatHashMap (key: string, val: string): string {
-  return `HashMap<${key}, ${val}>`;
-}
+    throw new Error(`TypeDefInfo.Enum: Not implemented on ${stringify(typeDef)}`);
+  },
+  [TypeDefInfo.Int]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    throw new Error(`TypeDefInfo.Int: Not implemented on ${stringify(typeDef)}`);
+  },
+  [TypeDefInfo.UInt]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    throw new Error(`TypeDefInfo.UInt: Not implemented on ${stringify(typeDef)}`);
+  },
+  [TypeDefInfo.Null]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    setImports(definitions, imports, ['Null']);
 
-/**
- * Given the inner `T`, return a `Vec<T>` string
- */
-/** @internal */
-function formatLinkage (inner: string): string {
-  return paramsNotation('Linkage', inner);
-}
+    return 'Null';
+  },
+  [TypeDefInfo.Option]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const sub = (typeDef.sub as TypeDef);
 
-/**
- * Given the inner `O` & `E`, return a `Result<O, E>`  string
- */
-/** @internal */
-function formatResult (innerOk: string, innerError: string): string {
-  return `Result<${innerOk}, ${innerError}>`;
-}
+    setImports(definitions, imports, ['Option', sub.lookupName]);
 
-/**
- * Given the inner `T`, return a `Option<T>` string
- */
-/** @internal */
-function formatOption (inner: string): string {
-  return paramsNotation('Option', inner);
-}
+    return paramsNotation('Option', sub.lookupName || formatType(registry, definitions, sub.type, imports, withShortcut));
+  },
+  [TypeDefInfo.Plain]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    setImports(definitions, imports, [typeDef.type]);
 
-/**
- * Given the inners `T[]`, return a `ITuple<...T>` string
- */
-/** @internal */
-function formatTuple (inners: string[]): string {
-  return paramsNotation('ITuple', `[${inners.join(', ')}]`);
-}
+    return typeDef.type;
+  },
+  [TypeDefInfo.Range]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    throw new Error(`TypeDefInfo.Range: Not implemented on ${stringify(typeDef)}`);
+  },
+  [TypeDefInfo.Set]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    throw new Error(`TypeDefInfo.Set: Not implemented on ${stringify(typeDef)}`);
+  },
+  [TypeDefInfo.Si]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    return formatType(registry, definitions, registry.lookup.getTypeDef(typeDef.type), imports, withShortcut);
+  },
+  [TypeDefInfo.Struct]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    if (typeDef.lookupName) {
+      return typeDef.lookupName;
+    }
 
-/**
- * Given the inner `T`, return a `Vec<T>` string
- */
-/** @internal */
-function formatVec (inner: string): string {
-  return paramsNotation('Vec', inner);
-}
+    const sub = typeDef.sub as TypeDef[];
+
+    setImports(definitions, imports, ['Struct', ...sub.map(({ lookupName }) => lookupName)]);
+
+    return `{${withShortcut ? ' ' : '\n'}${
+      sub.map(({ lookupName, name, type }, index) => [
+        name || `unknown${index}`,
+        lookupName || formatType(registry, definitions, type, imports, withShortcut)
+      ]).map(([k, t]) => `${withShortcut ? '' : '    readonly '}${k}: ${t};`).join(withShortcut ? ' ' : '\n')
+    }${withShortcut ? ' ' : '\n  '}} & Struct`;
+  },
+  [TypeDefInfo.Tuple]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const sub = typeDef.sub as TypeDef[];
+
+    setImports(definitions, imports, ['ITuple', ...sub.map(({ lookupName }) => lookupName)]);
+
+    // `(a,b)` gets transformed into `ITuple<[a, b]>`
+    return paramsNotation('ITuple', `[${
+      sub.map(({ lookupName, type }) =>
+        lookupName || formatType(registry, definitions, type, imports, withShortcut)
+      ).join(', ')
+    }]`);
+  },
+  [TypeDefInfo.Vec]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const sub = (typeDef.sub as TypeDef);
+
+    setImports(definitions, imports, ['Vec', sub.lookupName]);
+
+    return paramsNotation('Vec', sub.lookupName || formatType(registry, definitions, sub.type, imports, withShortcut));
+  },
+  [TypeDefInfo.VecFixed]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const sub = (typeDef.sub as TypeDef);
+
+    if (sub.type === 'u8') {
+      setImports(definitions, imports, ['U8aFixed']);
+
+      return 'U8aFixed';
+    }
+
+    setImports(definitions, imports, ['Vec', sub.lookupName]);
+
+    return paramsNotation('Vec', sub.lookupName || formatType(registry, definitions, sub.type, imports, withShortcut));
+  },
+  [TypeDefInfo.BTreeMap]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const [keyDef, valDef] = (typeDef.sub as TypeDef[]);
+
+    setImports(definitions, imports, ['BTreeMap', keyDef.lookupName, valDef.lookupName]);
+
+    return `BTreeMap<${keyDef.lookupName || formatType(registry, definitions, keyDef.type, imports, withShortcut)}, ${valDef.lookupName || formatType(registry, definitions, valDef.type, imports, withShortcut)}>`;
+  },
+  [TypeDefInfo.BTreeSet]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const valDef = typeDef.sub as TypeDef;
+
+    setImports(definitions, imports, ['BTreeSet', valDef.lookupName]);
+
+    return `BTreeSet<${valDef.lookupName || formatType(registry, definitions, valDef.type, imports, withShortcut)}>`;
+  },
+  [TypeDefInfo.HashMap]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const [keyDef, valDef] = (typeDef.sub as TypeDef[]);
+
+    setImports(definitions, imports, ['HashMap', keyDef.lookupName, valDef.lookupName]);
+
+    return `HashMap<${keyDef.lookupName || formatType(registry, definitions, keyDef.type, imports, withShortcut)}, ${valDef.lookupName || formatType(registry, definitions, valDef.type, imports, withShortcut)}>`;
+  },
+  [TypeDefInfo.Linkage]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const sub = (typeDef.sub as TypeDef);
+
+    setImports(definitions, imports, ['Linkage', sub.lookupName]);
+
+    return paramsNotation('Linkage', sub.lookupName || formatType(registry, definitions, sub.type, imports, withShortcut));
+  },
+  [TypeDefInfo.Result]: (registry: Registry, typeDef: TypeDef, definitions: Record<string, ModuleTypes>, imports: TypeImports, withShortcut: boolean) => {
+    const [okDef, errDef] = (typeDef.sub as TypeDef[]);
+
+    setImports(definitions, imports, ['Result', okDef.lookupName, errDef.lookupName]);
+
+    return `Result<${okDef.lookupName || formatType(registry, definitions, okDef.type, imports, withShortcut)}, ${errDef.lookupName || formatType(registry, definitions, errDef.type, imports, withShortcut)}>`;
+  }
+};
 
 /**
  * Correctly format a given type
  */
 /** @internal */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function formatType (definitions: Record<string, ModuleTypes>, type: string | String | TypeDef, imports: TypeImports): string {
+export function formatType (registry: Registry, definitions: Record<string, ModuleTypes>, type: string | String | TypeDef, imports: TypeImports, withShortcut = false): string {
   let typeDef: TypeDef;
 
   if (isString(type)) {
@@ -179,7 +236,7 @@ export function formatType (definitions: Record<string, ModuleTypes>, type: stri
 
     // If type is "unorthodox" (i.e. `{ something: any }` for an Enum input or `[a | b | c, d | e | f]` for a Tuple's similar types),
     // we return it as-is
-    if (/(^{.+:.+})|^\([^,]+\)|^\(.+\)\[\]|^\[.+\]/.exec(_type) && !/\[\w+;\w+\]/.exec(_type)) {
+    if (withShortcut && /(^{.+:.+})|^\([^,]+\)|^\(.+\)\[\]|^\[.+\]/.exec(_type) && !/\[\w+;\w+\]/.exec(_type)) {
       return _type;
     }
 
@@ -188,103 +245,7 @@ export function formatType (definitions: Record<string, ModuleTypes>, type: stri
     typeDef = type;
   }
 
-  setImports(definitions, imports, [typeDef.type]);
+  setImports(definitions, imports, [typeDef.lookupName || typeDef.type]);
 
-  // FIXME Swap to Record<TypeDefInfo, fn> to check all types
-  switch (typeDef.info) {
-    case TypeDefInfo.Compact: {
-      setImports(definitions, imports, ['Compact']);
-
-      return formatCompact(formatType(definitions, (typeDef.sub as TypeDef).type, imports));
-    }
-
-    case TypeDefInfo.DoNotConstruct: {
-      setImports(definitions, imports, ['DoNotConstruct']);
-
-      return formatDoNoConstruct();
-    }
-
-    case TypeDefInfo.Option: {
-      setImports(definitions, imports, ['Option']);
-
-      return formatOption(formatType(definitions, (typeDef.sub as TypeDef).type, imports));
-    }
-
-    case TypeDefInfo.Plain: {
-      return typeDef.type;
-    }
-
-    case TypeDefInfo.Vec: {
-      setImports(definitions, imports, ['Vec']);
-
-      return formatVec(formatType(definitions, (typeDef.sub as TypeDef).type, imports));
-    }
-
-    case TypeDefInfo.Tuple: {
-      setImports(definitions, imports, ['ITuple']);
-
-      // `(a,b)` gets transformed into `ITuple<[a, b]>`
-      return formatTuple(
-        ((typeDef.sub as TypeDef[]).map((sub) => formatType(definitions, sub.type, imports)))
-      );
-    }
-
-    case TypeDefInfo.VecFixed: {
-      const type = (typeDef.sub as TypeDef).type;
-
-      if (type === 'u8') {
-        setImports(definitions, imports, ['U8aFixed']);
-
-        return 'U8aFixed';
-      }
-
-      setImports(definitions, imports, ['Vec']);
-
-      return formatVec(formatType(definitions, type, imports));
-    }
-
-    case TypeDefInfo.BTreeMap: {
-      setImports(definitions, imports, ['BTreeMap']);
-
-      const [keyDef, valDef] = (typeDef.sub as TypeDef[]);
-
-      return formatBTreeMap(formatType(definitions, keyDef.type, imports), formatType(definitions, valDef.type, imports));
-    }
-
-    case TypeDefInfo.BTreeSet: {
-      setImports(definitions, imports, ['BTreeSet']);
-
-      const valDef = typeDef.sub as TypeDef;
-
-      return formatBTreeSet(formatType(definitions, valDef.type, imports));
-    }
-
-    case TypeDefInfo.HashMap: {
-      setImports(definitions, imports, ['HashMap']);
-
-      const [keyDef, valDef] = (typeDef.sub as TypeDef[]);
-
-      return formatHashMap(formatType(definitions, keyDef.type, imports), formatType(definitions, valDef.type, imports));
-    }
-
-    case TypeDefInfo.Linkage: {
-      const type = (typeDef.sub as TypeDef).type;
-
-      setImports(definitions, imports, ['Linkage']);
-
-      return formatLinkage(formatType(definitions, type, imports));
-    }
-
-    case TypeDefInfo.Result: {
-      setImports(definitions, imports, ['Result']);
-
-      const [okDef, errorDef] = (typeDef.sub as TypeDef[]);
-
-      return formatResult(formatType(definitions, okDef.type, imports), formatType(definitions, errorDef.type, imports));
-    }
-
-    default: {
-      throw new Error(`Cannot format ${stringify(type)}`);
-    }
-  }
+  return formatters[typeDef.info](registry, typeDef, definitions, imports, withShortcut);
 }

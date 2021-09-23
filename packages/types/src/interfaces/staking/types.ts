@@ -2,8 +2,8 @@
 /* eslint-disable */
 
 import type { BTreeMap, Compact, Enum, Option, Struct, Vec, bool, u128, u16, u32, u64 } from '@polkadot/types';
-import type { ITuple } from '@polkadot/types/types';
 import type { AccountId, Balance, BlockNumber, Moment, PerU16, Perbill } from '@polkadot/types/interfaces/runtime';
+import type { ITuple } from '@polkadot/types/types';
 
 /** @name ActiveEraInfo */
 export interface ActiveEraInfo extends Struct {
@@ -12,7 +12,7 @@ export interface ActiveEraInfo extends Struct {
 }
 
 /** @name CompactAssignments */
-export interface CompactAssignments extends CompactAssignmentsWith24 {}
+export interface CompactAssignments extends CompactAssignmentsWith16 {}
 
 /** @name CompactAssignmentsTo257 */
 export interface CompactAssignmentsTo257 extends Struct {
@@ -104,6 +104,7 @@ export interface ElectionPhase extends Enum {
   readonly isSigned: boolean;
   readonly isUnsigned: boolean;
   readonly asUnsigned: ITuple<[bool, BlockNumber]>;
+  readonly isEmergency: boolean;
 }
 
 /** @name ElectionResult */
@@ -207,7 +208,7 @@ export interface PhragmenScore extends Vec<u128> {}
 export interface Points extends u32 {}
 
 /** @name RawSolution */
-export interface RawSolution extends RawSolutionWith24 {}
+export interface RawSolution extends RawSolutionWith16 {}
 
 /** @name RawSolutionTo265 */
 export interface RawSolutionTo265 extends RawSolutionWith16 {}
@@ -257,6 +258,24 @@ export interface SeatHolder extends Struct {
   readonly who: AccountId;
   readonly stake: Balance;
   readonly deposit: Balance;
+}
+
+/** @name SignedSubmission */
+export interface SignedSubmission extends Struct {
+  readonly who: AccountId;
+  readonly deposit: Balance;
+  readonly solution: RawSolution;
+  readonly reward: Balance;
+}
+
+/** @name SignedSubmissionOf */
+export interface SignedSubmissionOf extends SignedSubmission {}
+
+/** @name SignedSubmissionTo276 */
+export interface SignedSubmissionTo276 extends Struct {
+  readonly who: AccountId;
+  readonly deposit: Balance;
+  readonly solution: RawSolution;
 }
 
 /** @name SlashingSpans */
@@ -330,6 +349,12 @@ export interface StakingLedgerTo240 extends Struct {
   readonly unlocking: Vec<UnlockChunk>;
   readonly lastReward: Option<EraIndex>;
 }
+
+/** @name SubmissionIndicesOf */
+export interface SubmissionIndicesOf extends BTreeMap<ElectionScore, u32> {}
+
+/** @name Supports */
+export interface Supports extends SolutionSupports {}
 
 /** @name UnappliedSlash */
 export interface UnappliedSlash extends Struct {

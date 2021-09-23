@@ -4,11 +4,36 @@
 import type { TypeDef } from '../create/types';
 import type { EventMetadataLatest } from '../interfaces/metadata';
 import type { EventId } from '../interfaces/system';
-import type { AnyJson, Codec, Constructor, IEvent, IEventData, Registry } from '../types';
+import type { AnyJson, Codec, Constructor, IEvent, IEventData, InterfaceTypes, Registry } from '../types';
 
 import { Struct } from '../codec/Struct';
 import { Tuple } from '../codec/Tuple';
 import { Null } from '../primitive/Null';
+
+interface Decoded {
+  DataType: Constructor<Null> | Constructor<GenericEventData>;
+  value?: {
+    index: Uint8Array;
+    data: Uint8Array;
+  }
+}
+
+/** @internal */
+function decodeEvent (registry: Registry, value?: Uint8Array): Decoded {
+  if (!value || !value.length) {
+    return { DataType: Null };
+  }
+
+  const index = value.subarray(0, 2);
+
+  return {
+    DataType: registry.findMetaEvent(index),
+    value: {
+      data: value.subarray(2),
+      index
+    }
+  };
+}
 
 /**
  * @name GenericEventData
@@ -24,13 +49,15 @@ export class GenericEventData extends Tuple implements IEventData {
 
   readonly #typeDef: TypeDef[];
 
-  constructor (registry: Registry, value: Uint8Array, Types: Constructor[] = [], typeDef: TypeDef[] = [], meta: EventMetadataLatest, section = '<unknown>', method = '<unknown>') {
-    super(registry, Types, value);
+  constructor (registry: Registry, value: Uint8Array, meta: EventMetadataLatest, section = '<unknown>', method = '<unknown>') {
+    const fields = meta?.fields || [];
+
+    super(registry, fields.map(({ type }) => registry.createLookupType(type) as keyof InterfaceTypes), value);
 
     this.#meta = meta;
     this.#method = method;
     this.#section = section;
-    this.#typeDef = typeDef;
+    this.#typeDef = fields.map(({ type }) => registry.lookup.getTypeDef(type));
   }
 
   /**
@@ -72,30 +99,13 @@ export class GenericEvent extends Struct implements IEvent<Codec[]> {
   // Currently we _only_ decode from Uint8Array, since we expect it to
   // be used via EventRecord
   constructor (registry: Registry, _value?: Uint8Array) {
-    const { DataType, value } = GenericEvent.decodeEvent(registry, _value);
+    const { DataType, value } = decodeEvent(registry, _value);
 
     super(registry, {
       index: 'EventId',
       // eslint-disable-next-line sort-keys
       data: DataType
     }, value);
-  }
-
-  /** @internal */
-  public static decodeEvent (registry: Registry, value: Uint8Array = new Uint8Array()): { DataType: Constructor<Null> | Constructor<GenericEventData>; value?: { index: Uint8Array; data: Uint8Array } } {
-    if (!value.length) {
-      return { DataType: Null };
-    }
-
-    const index = value.subarray(0, 2);
-
-    return {
-      DataType: registry.findMetaEvent(index),
-      value: {
-        data: value.subarray(2),
-        index
-      }
-    };
   }
 
   /**
@@ -143,12 +153,12 @@ export class GenericEvent extends Struct implements IEvent<Codec[]> {
   /**
    * @description Converts the Object to to a human-friendly JSON, with additional fields, expansion and formatting of information
    */
-  public toHuman (isExpanded?: boolean): Record<string, AnyJson> {
+  public override toHuman (isExpanded?: boolean): Record<string, AnyJson> {
     return {
       method: this.method,
       section: this.section,
       ...(isExpanded
-        ? { documentation: this.meta.documentation.map((d) => d.toString()) }
+        ? { docs: this.meta.docs.map((d) => d.toString()) }
         : {}
       ),
       ...super.toHuman(isExpanded)

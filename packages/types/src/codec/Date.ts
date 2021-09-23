@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { CodecHash, Hash } from '../interfaces/runtime';
-import type { AnyNumber, Codec, Registry } from '../types';
+import type { AnyNumber, INumber, Registry } from '../types';
 import type { UIntBitLength } from './types';
 
 import { BN, bnToBn, bnToHex, bnToU8a, isString, isU8a, u8aToBn } from '@polkadot/util';
@@ -33,7 +33,7 @@ function decodeDate (value: CodecDate | Date | AnyNumber): Date {
  * and has all the methods available that are applicable to any `Date`
  * @noInheritDoc
  */
-export class CodecDate extends Date implements Codec {
+export class CodecDate extends Date implements INumber {
   public readonly registry: Registry;
 
   public createdAtHash?: Hash;
@@ -114,7 +114,7 @@ export class CodecDate extends Date implements Codec {
   /**
    * @description Converts the Object to JSON, typically used for RPC transfers
    */
-  public toJSON (): any {
+  public override toJSON (): any {
     // FIXME Return type should be number, but conflicts with Date.toJSON()
     // which returns string
     return this.toNumber();
@@ -137,7 +137,7 @@ export class CodecDate extends Date implements Codec {
   /**
    * @description Returns the string representation of the value
    */
-  public toString (): string {
+  public override toString (): string {
     // only included here since we do not inherit docs
     return super.toString();
   }

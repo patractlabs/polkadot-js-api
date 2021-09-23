@@ -6,9 +6,11 @@
 import type { OverrideVersionedType } from '@polkadot/types/types';
 
 const sharedTypes = {
+  CompactAssignments: 'CompactAssignmentsWith24',
+  RawSolution: 'RawSolutionWith24',
   Keys: 'SessionKeys6',
   ProxyType: {
-    _enum: ['Any', 'NonTransfer', 'Governance', 'Staking', 'IdentityJudgement', 'CancelProxy']
+    _enum: ['Any', 'NonTransfer', 'Governance', 'Staking', 'IdentityJudgement', 'CancelProxy', 'Auction']
   }
 };
 
@@ -16,9 +18,9 @@ const addrIndicesTypes = {
   AccountInfo: 'AccountInfoWithRefCount',
   Address: 'LookupSource',
   CompactAssignments: 'CompactAssignmentsWith16',
+  RawSolution: 'RawSolutionWith16',
   Keys: 'SessionKeys5',
   LookupSource: 'IndicesLookupSource',
-  RawSolution: 'RawSolutionWith16',
   ValidatorPrefs: 'ValidatorPrefsWithCommission'
 };
 
@@ -26,9 +28,9 @@ const addrAccountIdTypes = {
   AccountInfo: 'AccountInfoWithRefCount',
   Address: 'AccountId',
   CompactAssignments: 'CompactAssignmentsWith16',
+  RawSolution: 'RawSolutionWith16',
   Keys: 'SessionKeys5',
   LookupSource: 'AccountId',
-  RawSolution: 'RawSolutionWith16',
   ValidatorPrefs: 'ValidatorPrefsWithCommission'
 };
 
@@ -42,6 +44,8 @@ const versioned: OverrideVersionedType[] = [
       CompactAssignments: 'CompactAssignmentsTo257',
       DispatchError: 'DispatchErrorTo198',
       DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
+      IdentityInfo: 'IdentityInfoTo198',
       Keys: 'SessionKeys5',
       Multiplier: 'Fixed64',
       OpenTip: 'OpenTipTo225',
@@ -60,6 +64,7 @@ const versioned: OverrideVersionedType[] = [
       BalanceLock: 'BalanceLockTo212',
       CompactAssignments: 'CompactAssignmentsTo257',
       DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       Keys: 'SessionKeys5',
       Multiplier: 'Fixed64',
       OpenTip: 'OpenTipTo225',
@@ -79,6 +84,7 @@ const versioned: OverrideVersionedType[] = [
       BalanceLock: 'BalanceLockTo212',
       CompactAssignments: 'CompactAssignmentsTo257',
       DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       Keys: 'SessionKeys5',
       Multiplier: 'Fixed64',
       OpenTip: 'OpenTipTo225',
@@ -97,6 +103,7 @@ const versioned: OverrideVersionedType[] = [
       ...addrAccountIdTypes,
       CompactAssignments: 'CompactAssignmentsTo257',
       DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       Multiplier: 'Fixed64',
       OpenTip: 'OpenTipTo225',
       RefCount: 'RefCountTo259',
@@ -112,6 +119,7 @@ const versioned: OverrideVersionedType[] = [
       ...addrAccountIdTypes,
       CompactAssignments: 'CompactAssignmentsTo257',
       DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       Multiplier: 'Fixed64',
       OpenTip: 'OpenTipTo225',
       RefCount: 'RefCountTo259',
@@ -126,6 +134,7 @@ const versioned: OverrideVersionedType[] = [
       ...addrAccountIdTypes,
       CompactAssignments: 'CompactAssignmentsTo257',
       DispatchInfo: 'DispatchInfoTo244',
+      Heartbeat: 'HeartbeatTo244',
       OpenTip: 'OpenTipTo225',
       RefCount: 'RefCountTo259'
     }
@@ -184,7 +193,13 @@ const versioned: OverrideVersionedType[] = [
   {
     minmax: [9010, undefined],
     types: {
-      ...sharedTypes
+      ...sharedTypes,
+      AssetInstance: 'AssetInstanceV0',
+      MultiAsset: 'MultiAssetV0',
+      MultiLocation: 'MultiLocationV0',
+      Response: 'ResponseV0',
+      Xcm: 'XcmV0',
+      XcmOrder: 'XcmOrderV0'
     }
   }
 ];

@@ -5,15 +5,16 @@ import type { SubmittableExtrinsic } from '@polkadot/api/submittable/types';
 import type { ApiTypes, DecorateMethod } from '@polkadot/api/types';
 import type { Bytes } from '@polkadot/types';
 import type { AccountId, EventRecord, Weight } from '@polkadot/types/interfaces';
-import type { AnyJson, CodecArg, ISubmittableResult } from '@polkadot/types/types';
+import type { AnyJson, ISubmittableResult } from '@polkadot/types/types';
 import type { AbiMessage, ContractCallOutcome, ContractOptions, DecodedEvent } from '../types';
 import type { ContractCallResult, ContractCallSend, ContractQuery, ContractTx, MapMessageQuery, MapMessageTx } from './types';
+
+import { map } from 'rxjs';
 
 import { SubmittableResult } from '@polkadot/api';
 import { ApiBase } from '@polkadot/api/base';
 import { createTypeUnsafe } from '@polkadot/types';
 import { assert, BN, BN_HUNDRED, BN_ONE, BN_ZERO, bnToBn, isFunction, isUndefined, logger } from '@polkadot/util';
-import { map } from '@polkadot/x-rxjs/operators';
 
 import { Abi } from '../Abi';
 import { applyOnEvent, extractOptions, isOptions } from '../util';
@@ -25,15 +26,15 @@ const ERROR_NO_CALL = 'Your node does not expose the contracts.call RPC. This is
 
 const l = logger('Contract');
 
-function createQuery <ApiType extends ApiTypes> (fn: (origin: string | AccountId | Uint8Array, options: ContractOptions, params: CodecArg[]) => ContractCallResult<ApiType, ContractCallOutcome>): ContractQuery<ApiType> {
-  return (origin: string | AccountId | Uint8Array, options: BigInt | string | number | BN | ContractOptions, ...params: CodecArg[]): ContractCallResult<ApiType, ContractCallOutcome> =>
+function createQuery <ApiType extends ApiTypes> (fn: (origin: string | AccountId | Uint8Array, options: ContractOptions, params: unknown[]) => ContractCallResult<ApiType, ContractCallOutcome>): ContractQuery<ApiType> {
+  return (origin: string | AccountId | Uint8Array, options: bigint | string | number | BN | ContractOptions, ...params: unknown[]): ContractCallResult<ApiType, ContractCallOutcome> =>
     isOptions(options)
       ? fn(origin, options, params)
       : fn(origin, ...extractOptions(options, params));
 }
 
-function createTx <ApiType extends ApiTypes> (fn: (options: ContractOptions, params: CodecArg[]) => SubmittableExtrinsic<ApiType>): ContractTx<ApiType> {
-  return (options: BigInt | string | number | BN | ContractOptions, ...params: CodecArg[]): SubmittableExtrinsic<ApiType> =>
+function createTx <ApiType extends ApiTypes> (fn: (options: ContractOptions, params: unknown[]) => SubmittableExtrinsic<ApiType>): ContractTx<ApiType> {
+  return (options: bigint | string | number | BN | ContractOptions, ...params: unknown[]): SubmittableExtrinsic<ApiType> =>
     isOptions(options)
       ? fn(options, params)
       : fn(...extractOptions(options, params));
@@ -89,7 +90,7 @@ export class Contract<ApiType extends ApiTypes> extends Base<ApiType> {
     return this.#tx;
   }
 
-  #getGas = (_gasLimit: BigInt | BN | string | number, isCall = false): BN => {
+  #getGas = (_gasLimit: bigint | BN | string | number, isCall = false): BN => {
     const gasLimit = bnToBn(_gasLimit);
 
     return gasLimit.lte(BN_ZERO)
@@ -102,7 +103,7 @@ export class Contract<ApiType extends ApiTypes> extends Base<ApiType> {
       : gasLimit;
   }
 
-  #exec = (messageOrId: AbiMessage | string | number, { gasLimit = BN_ZERO, value = BN_ZERO }: ContractOptions, params: CodecArg[]): SubmittableExtrinsic<ApiType> => {
+  #exec = (messageOrId: AbiMessage | string | number, { gasLimit = BN_ZERO, value = BN_ZERO }: ContractOptions, params: unknown[]): SubmittableExtrinsic<ApiType> => {
     return this.api.tx.contracts
       .call(
         this.address,
@@ -128,7 +129,7 @@ export class Contract<ApiType extends ApiTypes> extends Base<ApiType> {
       );
   }
 
-  #read = (messageOrId: AbiMessage | string | number, { gasLimit = BN_ZERO, value = BN_ZERO }: ContractOptions, params: CodecArg[]): ContractCallSend<ApiType> => {
+  #read = (messageOrId: AbiMessage | string | number, { gasLimit = BN_ZERO, value = BN_ZERO }: ContractOptions, params: unknown[]): ContractCallSend<ApiType> => {
     assert(this.hasRpcContractsCall, ERROR_NO_CALL);
 
     const message = this.abi.findMessage(messageOrId);
@@ -145,9 +146,12 @@ export class Contract<ApiType extends ApiTypes> extends Base<ApiType> {
             value
           })
           .pipe(
-            map(({ debugMessage, gasConsumed, result }): ContractCallOutcome => ({
+            map(({ debugMessage, gasConsumed, gasRequired, result }): ContractCallOutcome => ({
               debugMessage,
               gasConsumed,
+              gasRequired: gasRequired && !gasRequired.isZero()
+                ? gasRequired
+                : gasConsumed,
               output: result.isOk && message.returnType
                 ? createTypeUnsafe(this.registry, message.returnType.type, [result.asOk.data.toU8a(true)], { isPedantic: true })
                 : null,

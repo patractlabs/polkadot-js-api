@@ -1,6 +1,6 @@
 {
   "name": "@polkadot/api",
-  "version": "4.15.2-1",
+  "version": "6.0.4",
   "type": "module",
   "description": "Promise and RxJS wrappers around the Polkadot JS RPC",
   "main": "index.js",
@@ -19,17 +19,16 @@
   "bugs": "https://github.com/polkadot-js/api/issues",
   "homepage": "https://github.com/polkadot-js/api/tree/master/packages/api#readme",
   "dependencies": {
-    "@babel/runtime": "^7.14.5",
-    "@polkadot/api-derive": "4.15.2-1",
-    "@polkadot/keyring": "^6.9.1",
-    "@polkadot/metadata": "4.15.2-1",
-    "@polkadot/rpc-core": "4.15.2-1",
-    "@polkadot/rpc-provider": "4.15.2-1",
-    "@polkadot/types": "4.15.2-1",
-    "@polkadot/types-known": "4.15.2-1",
-    "@polkadot/util": "^6.9.1",
-    "@polkadot/util-crypto": "^6.9.1",
-    "@polkadot/x-rxjs": "^6.9.1",
-    "eventemitter3": "^4.0.7"
+    "@babel/runtime": "^7.15.4",
+    "@polkadot/api-derive": "6.0.4",
+    "@polkadot/keyring": "^7.4.1",
+    "@polkadot/rpc-core": "6.0.4",
+    "@polkadot/rpc-provider": "6.0.4",
+    "@polkadot/types": "6.0.4",
+    "@polkadot/types-known": "6.0.4",
+    "@polkadot/util": "^7.4.1",
+    "@polkadot/util-crypto": "^7.4.1",
+    "eventemitter3": "^4.0.7",
+    "rxjs": "^7.3.0"
   }
 }

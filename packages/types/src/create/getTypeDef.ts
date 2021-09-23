@@ -15,6 +15,7 @@ interface TypeDefOptions {
 }
 
 const MAX_NESTED = 64;
+const KNOWN_INTERNALS = ['_alias', '_fallback'];
 
 function getTypeString (typeOrObj: any): string {
   return isString(typeOrObj)
@@ -78,7 +79,7 @@ function _decodeSet (value: TypeDef, details: Record<string, number>): TypeDef {
       index,
       info: TypeDefInfo.Plain,
       name,
-      type: name
+      type: 'Null'
     }));
 
   return value;
@@ -100,7 +101,8 @@ function _decodeStruct (value: TypeDef, type: string, _: string, count: number):
   value.alias = parsed._alias
     ? new Map(Object.entries(parsed._alias))
     : undefined;
-  value.sub = keys.filter((name) => !['_alias'].includes(name)).map((name): TypeDef =>
+  value.fallbackType = parsed._fallback as string | undefined;
+  value.sub = keys.filter((name) => !KNOWN_INTERNALS.includes(name)).map((name): TypeDef =>
     getTypeDef(getTypeString(parsed[name]), { name }, count)
   );
 
@@ -136,6 +138,14 @@ function _decodeFixedVec (value: TypeDef, type: string, _: string, count: number
   value.displayName = displayName;
   value.length = length;
   value.sub = getTypeDef(vecType, {}, count);
+
+  return value;
+}
+
+function _decodeRange (value: TypeDef, _: string, subType: string): TypeDef {
+  const Type = getTypeDef(subType);
+
+  value.sub = [Type, Type];
 
   return value;
 }
@@ -193,6 +203,9 @@ const nestedExtraction: [string, string, TypeDefInfo, (value: TypeDef, type: str
   ['BTreeMap<', '>', TypeDefInfo.BTreeMap, _decodeTuple],
   ['HashMap<', '>', TypeDefInfo.HashMap, _decodeTuple],
   ['Int<', '>', TypeDefInfo.Int, _decodeInt],
+  // Not sure about these, have a specific implementation?
+  ['Range<', '>', TypeDefInfo.Tuple, _decodeRange],
+  ['RangeInclusive<', '>', TypeDefInfo.Tuple, _decodeRange],
   ['Result<', '>', TypeDefInfo.Result, _decodeTuple],
   ['UInt<', '>', TypeDefInfo.UInt, _decodeUInt],
   ['DoNotConstruct<', '>', TypeDefInfo.DoNotConstruct, _decodeDoNotConstruct]

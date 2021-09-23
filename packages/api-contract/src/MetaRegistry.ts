@@ -1,20 +1,19 @@
 // Copyright 2017-2021 @polkadot/api-contract authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ChainProperties, ContractDisplayName, SiField, SiLookupTypeId, SiType, SiTypeDefArray, SiTypeDefSequence, SiTypeDefTuple, SiTypeDefVariant, SiVariant } from '@polkadot/types/interfaces';
+import type { ChainProperties, ContractDisplayName, Si0Field, Si0LookupTypeId, Si0Type, Si0TypeDefArray, Si0TypeDefSequence, Si0TypeDefTuple, Si0TypeDefVariant, Si0Variant } from '@polkadot/types/interfaces';
 import type { InterfaceTypes, TypeDef } from '@polkadot/types/types';
 
-import { TypeRegistry, withTypeString } from '@polkadot/types/create';
-import { TypeDefInfo } from '@polkadot/types/types';
+import { TypeDefInfo, TypeRegistry, withTypeString } from '@polkadot/types';
 import { assert, isUndefined } from '@polkadot/util';
 
 interface PartialTypeSpec {
-  readonly type: SiLookupTypeId;
+  readonly type: Si0LookupTypeId;
   readonly displayName?: ContractDisplayName;
 }
 
 // convert the offset into project-specific, index-1
-export function getRegistryOffset (id: SiLookupTypeId, typeOffset: number): number {
+export function getRegistryOffset (id: Si0LookupTypeId, typeOffset: number): number {
   return id.toNumber() - typeOffset;
 }
 
@@ -25,25 +24,28 @@ const PRIMITIVE_ALIAS: Record<string, keyof InterfaceTypes> = {
 
 const PRIMITIVE_ALWAYS = ['AccountId', 'AccountIndex', 'Address', 'Balance'];
 
+// TODO Replace usages with PortableRegistry
 export class MetaRegistry extends TypeRegistry {
   public readonly metaTypeDefs: TypeDef[] = [];
 
   public readonly typeOffset;
 
-  #siTypes: SiType[] = [];
+  #siTypes: Si0Type[] = [];
 
   constructor (metadataVersion: string, chainProperties?: ChainProperties) {
     super();
 
-    // type indexes are 1-based pre-1.0 and 0-based post-1.0
-    this.typeOffset = metadataVersion.split('.')[0] === '0' ? 1 : 0;
+    const [major, minor] = metadataVersion.split('.').map((n) => parseInt(n, 10));
+
+    // type indexes are 1-based pre 0.7 and 0-based post
+    this.typeOffset = (major === 0 && minor < 7) ? 1 : 0;
 
     if (chainProperties) {
       this.setChainProperties(chainProperties);
     }
   }
 
-  public setMetaTypes (metaTypes: SiType[]): void {
+  public setMetaTypes (metaTypes: Si0Type[]): void {
     this.#siTypes = metaTypes;
   }
 
@@ -82,15 +84,15 @@ export class MetaRegistry extends TypeRegistry {
     return typeDef;
   }
 
-  #getMetaType = (id: SiLookupTypeId): SiType => {
+  #getMetaType = (id: Si0LookupTypeId): Si0Type => {
     const type = this.#siTypes[getRegistryOffset(id, this.typeOffset)];
 
     assert(!isUndefined(type), () => `getMetaType:: Unable to find ${id.toNumber()} in type values`);
 
-    return this.createType('SiType', type);
+    return this.createType('Si0Type', type);
   }
 
-  #extract = (type: SiType, id: SiLookupTypeId): TypeDef => {
+  #extract = (type: Si0Type, id: Si0LookupTypeId): TypeDef => {
     const path = [...type.path];
     const isPrimitivePath = !!path.length && (
       (path.length > 2 && path[0].eq('ink_env') && path[1].eq('types')) ||
@@ -118,13 +120,13 @@ export class MetaRegistry extends TypeRegistry {
 
     const displayName = path.pop()?.toString();
 
-    return withTypeString({
+    return withTypeString(this, {
       ...(displayName
         ? { displayName }
         : {}
       ),
       ...(path.length > 1
-        ? { namespace: path.map((segment) => segment.toString()).join('::') }
+        ? { namespace: path.map((s) => s.toString()).join('::') }
         : {}
       ),
       ...(type.params.length > 0
@@ -135,7 +137,7 @@ export class MetaRegistry extends TypeRegistry {
     });
   }
 
-  #extractArray = ({ len: length, type }: SiTypeDefArray): Omit<TypeDef, 'type'> => {
+  #extractArray = ({ len: length, type }: Si0TypeDefArray): Omit<TypeDef, 'type'> => {
     assert(!length || length.toNumber() <= 256, 'MetaRegistry: Only support for [Type; <length>], where length <= 256');
 
     return {
@@ -145,7 +147,7 @@ export class MetaRegistry extends TypeRegistry {
     };
   }
 
-  #extractFields = (fields: SiField[]): Omit<TypeDef, 'type'> => {
+  #extractFields = (fields: Si0Field[]): Omit<TypeDef, 'type'> => {
     const [isStruct, isTuple] = fields.reduce(([isAllNamed, isAllUnnamed], { name }) => ([
       isAllNamed && name.isSome,
       isAllUnnamed && name.isNone
@@ -154,15 +156,13 @@ export class MetaRegistry extends TypeRegistry {
 
     assert(isTuple || isStruct, 'Invalid fields type detected, expected either Tuple or Struct');
 
-    const sub = fields.map(({ name, type }) => {
-      return {
-        ...this.getMetaTypeDef({ type }),
-        ...(name.isSome
-          ? { name: name.unwrap().toString() }
-          : {}
-        )
-      };
-    });
+    const sub = fields.map(({ name, type }) => ({
+      ...this.getMetaTypeDef({ type }),
+      ...(name.isSome
+        ? { name: name.unwrap().toString() }
+        : {}
+      )
+    }));
 
     return isTuple && sub.length === 1
       ? sub[0]
@@ -175,7 +175,7 @@ export class MetaRegistry extends TypeRegistry {
       };
   }
 
-  #extractPrimitive = (type: SiType): TypeDef => {
+  #extractPrimitive = (type: Si0Type): TypeDef => {
     const typeStr = type.def.asPrimitive.type.toString();
 
     return {
@@ -184,14 +184,14 @@ export class MetaRegistry extends TypeRegistry {
     };
   }
 
-  #extractPrimitivePath = (type: SiType): TypeDef => {
+  #extractPrimitivePath = (type: Si0Type): TypeDef => {
     return {
       info: TypeDefInfo.Plain,
       type: type.path[type.path.length - 1].toString()
     };
   }
 
-  #extractSequence = ({ type }: SiTypeDefSequence, id: SiLookupTypeId): Omit<TypeDef, 'type'> => {
+  #extractSequence = ({ type }: Si0TypeDefSequence, id: Si0LookupTypeId): Omit<TypeDef, 'type'> => {
     assert(!!type, () => `ContractRegistry: Invalid sequence type found at id ${id.toString()}`);
 
     return {
@@ -200,7 +200,7 @@ export class MetaRegistry extends TypeRegistry {
     };
   }
 
-  #extractTuple = (ids: SiTypeDefTuple): Omit<TypeDef, 'type'> => {
+  #extractTuple = (ids: Si0TypeDefTuple): Omit<TypeDef, 'type'> => {
     return ids.length === 1
       ? this.getMetaTypeDef({ type: ids[0] })
       : {
@@ -209,36 +209,32 @@ export class MetaRegistry extends TypeRegistry {
       };
   }
 
-  #extractVariant = ({ variants }: SiTypeDefVariant, id: SiLookupTypeId): Omit<TypeDef, 'type'> => {
+  #extractVariant = ({ variants }: Si0TypeDefVariant, id: Si0LookupTypeId): Omit<TypeDef, 'type'> => {
     const { params, path } = this.#getMetaType(id);
     const specialVariant = path[0].toString();
 
-    if (specialVariant === 'Option') {
-      return {
+    return specialVariant === 'Option'
+      ? {
         info: TypeDefInfo.Option,
         sub: this.getMetaTypeDef({ type: params[0] })
-      };
-    } else if (specialVariant === 'Result') {
-      return {
-        info: TypeDefInfo.Result,
-        sub: params.map((type, index) => ({
-          name: ['Ok', 'Error'][index],
-          ...this.getMetaTypeDef({ type })
-        }))
-      };
-    }
-
-    return {
-      info: TypeDefInfo.Enum,
-      sub: this.#extractVariantSub(variants)
-    };
+      }
+      : specialVariant === 'Result'
+        ? {
+          info: TypeDefInfo.Result,
+          sub: params.map((type, index) => ({
+            name: ['Ok', 'Error'][index],
+            ...this.getMetaTypeDef({ type })
+          }))
+        }
+        : {
+          info: TypeDefInfo.Enum,
+          sub: this.#extractVariantSub(variants)
+        };
   }
 
-  #extractVariantSub = (variants: SiVariant[]): TypeDef[] => {
-    const isAllUnitVariants = variants.every(({ fields }) => fields.length === 0);
-
-    if (isAllUnitVariants) {
-      return variants.map(({ discriminant, name }) => ({
+  #extractVariantSub = (variants: Si0Variant[]): TypeDef[] => {
+    return variants.every(({ fields }) => fields.length === 0)
+      ? variants.map(({ discriminant, name }) => ({
         ...(
           discriminant.isSome
             ? { ext: { discriminant: discriminant.unwrap().toNumber() } }
@@ -247,14 +243,10 @@ export class MetaRegistry extends TypeRegistry {
         info: TypeDefInfo.Plain,
         name: name.toString(),
         type: 'Null'
-      }));
-    }
-
-    return variants.map(({ fields, name }) =>
-      withTypeString({
+      }))
+      : variants.map(({ fields, name }) => withTypeString(this, {
         ...this.#extractFields(fields),
         name: name.toString()
-      })
-    );
+      }));
   }
 }
