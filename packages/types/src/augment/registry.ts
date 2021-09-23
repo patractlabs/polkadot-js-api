@@ -2,6 +2,7 @@
 /* eslint-disable */
 
 import type { BitVec, Bool, Bytes, Data, I128, I16, I256, I32, I64, I8, Json, Null, Raw, StorageKey, Text, Type, U128, U16, U256, U32, U64, U8, USize, bool, i128, i16, i256, i32, i64, i8, u128, u16, u256, u32, u64, u8, usize } from '@polkadot/types';
+import type { BlacklistItem, MemberRole, Url } from '@polkadot/types/interfaces/alliance';
 import type { AssetApproval, AssetApprovalKey, AssetBalance, AssetDestroyWitness, AssetDetails, AssetMetadata, TAssetBalance, TAssetDepositBalance } from '@polkadot/types/interfaces/assets';
 import type { BlockAttestations, IncludedBlocks, MoreAttestations } from '@polkadot/types/interfaces/attestations';
 import type { RawAuraPreDigest } from '@polkadot/types/interfaces/aura';
@@ -13,6 +14,7 @@ import type { BeefyCommitment, BeefyId, BeefyNextAuthoritySet, BeefyPayload, Bee
 import type { BridgedBlockHash, BridgedBlockNumber, BridgedHeader, CallOrigin, ChainId, DeliveredMessages, DispatchFeePayment, InboundLaneData, InboundRelayer, InitializationData, LaneId, MessageData, MessageKey, MessageNonce, MessagesDeliveryProofOf, MessagesProofOf, OperatingMode, OutboundLaneData, OutboundMessageFee, OutboundPayload, Parameter, RelayerId, UnrewardedRelayer, UnrewardedRelayersState } from '@polkadot/types/interfaces/bridges';
 import type { BlockHash } from '@polkadot/types/interfaces/chain';
 import type { PrefixedStorageKey } from '@polkadot/types/interfaces/childstate';
+import type { Cid, CidMultihash, CidVersion } from '@polkadot/types/interfaces/cid';
 import type { EthereumAddress, StatementKind } from '@polkadot/types/interfaces/claims';
 import type { CollectiveOrigin, MemberCount, ProposalIndex, Votes, VotesTo230 } from '@polkadot/types/interfaces/collective';
 import type { AuthorityId, RawVRFOutput } from '@polkadot/types/interfaces/consensus';
@@ -143,6 +145,7 @@ declare module '@polkadot/types/types/registry' {
     Bidder: Bidder;
     BidKind: BidKind;
     BitVec: BitVec;
+    BlacklistItem: BlacklistItem;
     Block: Block;
     BlockAttestations: BlockAttestations;
     BlockHash: BlockHash;
@@ -186,6 +189,9 @@ declare module '@polkadot/types/types/registry' {
     ChainType: ChainType;
     ChangesTrieConfiguration: ChangesTrieConfiguration;
     ChangesTrieSignal: ChangesTrieSignal;
+    Cid: Cid;
+    CidMultihash: CidMultihash;
+    CidVersion: CidVersion;
     ClassDetails: ClassDetails;
     ClassId: ClassId;
     ClassMetadata: ClassMetadata;
@@ -519,6 +525,7 @@ declare module '@polkadot/types/types/registry' {
     MaybeRandomness: MaybeRandomness;
     MaybeVrf: MaybeVrf;
     MemberCount: MemberCount;
+    MemberRole: MemberRole;
     MembershipProof: MembershipProof;
     MessageData: MessageData;
     MessageId: MessageId;
@@ -949,6 +956,7 @@ declare module '@polkadot/types/types/registry' {
     UpgradeGoAhead: UpgradeGoAhead;
     UpgradeRestriction: UpgradeRestriction;
     UpwardMessage: UpwardMessage;
+    Url: Url;
     usize: usize;
     USize: USize;
     ValidationCode: ValidationCode;

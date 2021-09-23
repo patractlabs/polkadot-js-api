@@ -6,6 +6,7 @@ import type { ApiInterfaceRx } from '@polkadot/api/types';
 import type { AnyFunction } from '@polkadot/types/types';
 
 import * as accounts from './accounts';
+import * as alliance from './alliance';
 import * as balances from './balances';
 import * as bounties from './bounties';
 import * as chain from './chain';
@@ -32,7 +33,7 @@ interface Avail {
   withDetect?: boolean;
 }
 
-export const derive = { accounts, balances, bounties, chain, contracts, council, crowdloan, democracy, elections, imOnline, membership, parachains, session, society, staking, technicalCommittee, treasury, tx };
+export const derive = { accounts, alliance, balances, bounties, chain, contracts, council, crowdloan, democracy, elections, imOnline, membership, parachains, session, society, staking, technicalCommittee, treasury, tx };
 
 type DeriveSection<Section> = {
   [Method in keyof Section]: Section[Method] extends AnyFunction

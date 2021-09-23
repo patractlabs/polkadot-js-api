@@ -22,6 +22,7 @@
     "@babel/runtime": "^7.15.4",
     "@polkadot/util": "^7.4.1",
     "@polkadot/util-crypto": "^7.4.1",
+    "multihashes": "^4.0.3",
     "rxjs": "^7.3.0"
   },
   "devDependencies": {

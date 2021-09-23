@@ -50,6 +50,8 @@ export * from './xcm/types';
 export * from './contractsAbi/types';
 export * from './scaleInfo/types';
 export * from './eth/types';
+export * from './cid/types';
+export * from './alliance/types';
 export * from './metadata/types';
 export * from './rpc/types';
 export * from './author/types';
